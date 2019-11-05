@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10.1 FATAL_ERROR)
 project(improved-giggle CXX)
 
-add_executable(generate generate.cpp)
+set(CMAKE_MODULE_PATH /home/david/improved-giggle/cmake)
 
-set_target_properties(generate PROPERTIES CXX_STANDARD 11)
+add_subdirectory(cpu-giggle)
+
+add_subdirectory(apps)
