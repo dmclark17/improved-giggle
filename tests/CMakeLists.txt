@@ -5,6 +5,11 @@ macro(package_add_test TESTNAME)
     target_link_libraries(${TESTNAME} gtest gmock gtest_main)
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME})
     set_target_properties(${TESTNAME} PROPERTIES FOLDER tests)
+
+    # Custom stuff
+    target_link_libraries(${TESTNAME} igiggle-helper-lib)
+    target_include_directories(${TESTNAME} PUBLIC ${IGIGGLE_HELPER_INCLUDE_DIR})
+
     target_link_libraries(${TESTNAME} mkl-benchmark-lib)
     target_include_directories(${TESTNAME} PUBLIC ${MKL_BENCHMARK_INCLUDE_DIR})
 endmacro()
