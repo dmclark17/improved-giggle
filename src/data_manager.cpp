@@ -47,6 +47,14 @@ void generate_matrix_diff(float* mat, int ld, int n) {
     }
 }
 
+void generate_matrix_random(float* mat, int ld, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            mat[i * ld + j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        }
+    }
+}
+
 void deallocate_run(GemmRun* run) {
     free(run->a);
     free(run->b);
