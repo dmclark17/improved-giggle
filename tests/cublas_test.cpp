@@ -27,13 +27,6 @@ TEST(CUBLASTests, ThreeByThree) {
 
     for (int i = 0; i < run->m; i++) {
         for (int j = 0; j < run->n; j++) {
-            printf("%f\t", run->c[i * run->ldc + j]);
-        }
-        printf("\n");
-    }
-
-    for (int i = 0; i < run->m; i++) {
-        for (int j = 0; j < run->n; j++) {
             ASSERT_TRUE(run->c[IDX2C(i, j, run->ldc)] == expected[i * run->ldc + j]);
         }
     }

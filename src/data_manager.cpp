@@ -55,6 +55,15 @@ void generate_matrix_random(float* mat, int ld, int n) {
     }
 }
 
+void print_matrix(float* mat, int ld, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%f\t", mat[i * ld + j]);
+        }
+        printf("\n");
+    }
+}
+
 void deallocate_run(GemmRun* run) {
     free(run->a);
     free(run->b);

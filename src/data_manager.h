@@ -23,6 +23,8 @@ void generate_matrix_diff(float* mat, int ld, int n);
 
 void generate_matrix_random(float* mat, int ld, int n);
 
+void print_matrix(float* mat, int ld, int n);
+
 void deallocate_run(GemmRun* run);
 
 #endif /* end of include guard: _IGIGGLE_DM_H_ */
