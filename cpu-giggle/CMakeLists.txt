@@ -13,4 +13,8 @@ if(MKL_FOUND)
 endif()
 target_link_libraries(mkl-benchmark-lib ${BLAS_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
+
+include_directories(mkl-benchmark-lib ${IGIGGLE_HELPER_INCLUDE_DIR})
+
+
 set_target_properties(mkl-benchmark-lib PROPERTIES CXX_STANDARD 11)
