@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     matrix_sizes.push_back(std::stoi(remain));
 
     if (FLAGS_benchmark.compare("mkl") == 0) {
-        std::cout << "Running MLK Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        std::cout << "Running MKL Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         for (int size : matrix_sizes) {
             double duration;
             for (int i = 0; i < FLAGS_number; i++) {
@@ -40,13 +40,13 @@ int main(int argc, char *argv[]) {
                 generate_matrix_random(run->b, run->ldb, run->k);
 
                 std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-                gemm_execute(run);
+                mkl_gemm_execute(run);
                 std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
                 duration += (double) std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
 
                 deallocate_run(run);
             }
-            std::cout << "size: " << size << " time: " << duration / FLAGS_number << "ms" << std::endl;
+            std::cout << "size: " << size << " time: " << duration / FLAGS_number << " ms" << std::endl;
         }
     } else if (FLAGS_benchmark.compare("cublas") == 0) {
         std::cout << "Running cuBLAS Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
                 deallocate_run(run);
             }
-            std::cout << "size: " << size << " time: " << duration / FLAGS_number << "ms" << std::endl;
+            std::cout << "size: " << size << " time: " << duration / FLAGS_number << " ms" << std::endl;
         }
     } else {
         std::cout << "Benchmark " << FLAGS_benchmark << " not supported" << std::endl;

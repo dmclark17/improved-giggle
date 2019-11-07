@@ -7,7 +7,7 @@
 
 #include "mkl_benchmark.h"
 
-void gemm_execute(GemmRun* run) {
+void mkl_gemm_execute(GemmRun* run) {
     CBLAS_LAYOUT layout;
     CBLAS_TRANSPOSE transa, transb;
 
