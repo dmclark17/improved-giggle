@@ -1,6 +1,6 @@
 add_library(mkl-benchmark-lib STATIC
     mkl_benchmark.cpp
-    mkl_benchmark.h
+    cpu_benchmark.h
 )
 
 set(MKL_BENCHMARK_INCLUDE_DIR "/home/david/improved-giggle/cpu-giggle" PARENT_SCOPE)

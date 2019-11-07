@@ -6,8 +6,8 @@
 #include <gflags/gflags.h>
 
 #include "data_manager.h"
-#include "mkl_benchmark.h"
-#include "cublas_benchmark.h"
+#include "cpu_benchmark.h"
+#include "gpu_benchmark.h"
 
 DEFINE_string(benchmark, "mkl", "benchmark to run");
 DEFINE_uint64(number, 1, "Amount of times to run each size");

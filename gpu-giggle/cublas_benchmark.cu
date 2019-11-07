@@ -5,7 +5,7 @@
 
 #include "data_manager.h"
 
-#include "cublas_benchmark.h"
+#include "gpu_benchmark.h"
 
 void cublass_gemm_execute(GemmRun* run) {
 

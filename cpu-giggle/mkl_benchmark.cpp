@@ -5,7 +5,7 @@
 
 #include "data_manager.h"
 
-#include "mkl_benchmark.h"
+#include "cpu_benchmark.h"
 
 void mkl_gemm_execute(GemmRun* run) {
     CBLAS_LAYOUT layout;

@@ -1,6 +1,6 @@
 add_library(cublas-benchmark-lib STATIC
     cublas_benchmark.cu
-    cublas_benchmark.h
+    gpu_benchmark.h
 )
 
 set(CUBLAS_BENCHMARK_INCLUDE_DIR "/home/david/improved-giggle/gpu-giggle" PARENT_SCOPE)

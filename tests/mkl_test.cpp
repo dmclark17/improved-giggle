@@ -1,5 +1,5 @@
 #include "data_manager.h"
-#include "mkl_benchmark.h"
+#include "cpu_benchmark.h"
 
 #include "gtest/gtest.h"
 

@@ -1,5 +1,5 @@
 #include "data_manager.h"
-#include "cublas_benchmark.h"
+#include "gpu_benchmark.h"
 
 #include "gtest/gtest.h"
 

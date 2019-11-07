@@ -29,4 +29,4 @@ macro(package_add_gpu_test TESTNAME)
 endmacro()
 
 package_add_cpu_test(mkl_test mkl_test.cpp)
-package_add_gpu_test(cublas cublas_test.cpp)
+package_add_gpu_test(cublas_test cublas_test.cpp)
