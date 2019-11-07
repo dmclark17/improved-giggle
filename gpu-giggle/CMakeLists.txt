@@ -3,7 +3,7 @@ add_library(cublas-benchmark-lib STATIC
     gpu_benchmark.h
 )
 
-set(CUBLAS_BENCHMARK_INCLUDE_DIR "/home/david/improved-giggle/gpu-giggle" PARENT_SCOPE)
+set(CUBLAS_BENCHMARK_INCLUDE_DIR "${IGIGGLE_SOURCE_DIR}/gpu-giggle" PARENT_SCOPE)
 
 target_link_libraries(cublas-benchmark-lib -lcublas)
 

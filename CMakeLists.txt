@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10.1 FATAL_ERROR)
 project(improved-giggle CXX CUDA)
 
-set(IGIGGLE_SOURCE_DIR /home/david/improved-giggle)
+set(IGIGGLE_SOURCE_DIR $ENV{IMPROVED_GIGGLE_ROOT})
 set(CMAKE_MODULE_PATH ${IGIGGLE_SOURCE_DIR}/cmake)
 
 add_subdirectory(src)

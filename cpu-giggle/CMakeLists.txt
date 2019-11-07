@@ -3,7 +3,7 @@ add_library(mkl-benchmark-lib STATIC
     cpu_benchmark.h
 )
 
-set(MKL_BENCHMARK_INCLUDE_DIR "/home/david/improved-giggle/cpu-giggle" PARENT_SCOPE)
+set(MKL_BENCHMARK_INCLUDE_DIR "${IGIGGLE_SOURCE_DIR}/cpu-giggle" PARENT_SCOPE)
 
 find_package(BLAS REQUIRED)
 find_package(MKL)
