@@ -10,6 +10,7 @@ find_package(MKL)
 if(MKL_FOUND)
   target_link_libraries(mkl-benchmark-lib ${MKL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
   include_directories(${MKL_INCLUDE_DIRS})
+  add_definitions(-D_IG_HASMKL)
 endif()
 target_link_libraries(mkl-benchmark-lib ${BLAS_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
