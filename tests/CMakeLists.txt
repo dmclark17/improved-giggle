@@ -5,6 +5,7 @@ macro(package_add_cpu_test TESTNAME)
     target_link_libraries(${TESTNAME} gtest gmock gtest_main)
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME})
     set_target_properties(${TESTNAME} PROPERTIES FOLDER tests)
+    set_target_properties(${TESTNAME} PROPERTIES CXX_STANDARD 11)
 
     # Custom stuff
     target_link_libraries(${TESTNAME} igiggle-helper-lib)
@@ -19,6 +20,7 @@ macro(package_add_gpu_test TESTNAME)
     target_link_libraries(${TESTNAME} gtest gmock gtest_main)
     add_test(NAME ${TESTNAME} COMMAND ${TESTNAME})
     set_target_properties(${TESTNAME} PROPERTIES FOLDER tests)
+    set_target_properties(${TESTNAME} PROPERTIES CXX_STANDARD 11)
 
     # Custom stuff
     target_link_libraries(${TESTNAME} igiggle-helper-lib)
