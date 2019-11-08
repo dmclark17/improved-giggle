@@ -11,8 +11,8 @@ macro(package_add_cpu_test TESTNAME)
     target_link_libraries(${TESTNAME} igiggle-helper-lib)
     target_include_directories(${TESTNAME} PUBLIC ${IGIGGLE_HELPER_INCLUDE_DIR})
 
-    target_link_libraries(${TESTNAME} mkl-benchmark-lib)
-    target_include_directories(${TESTNAME} PUBLIC ${MKL_BENCHMARK_INCLUDE_DIR})
+    target_link_libraries(${TESTNAME} cpu-benchmark-lib)
+    target_include_directories(${TESTNAME} PUBLIC ${CPU_BENCHMARK_INCLUDE_DIR})
 endmacro()
 
 macro(package_add_gpu_test TESTNAME)
@@ -26,8 +26,8 @@ macro(package_add_gpu_test TESTNAME)
     target_link_libraries(${TESTNAME} igiggle-helper-lib)
     target_include_directories(${TESTNAME} PUBLIC ${IGIGGLE_HELPER_INCLUDE_DIR})
 
-    target_link_libraries(${TESTNAME} cublas-benchmark-lib)
-    target_include_directories(${TESTNAME} PUBLIC ${CUBLAS_BENCHMARK_INCLUDE_DIR})
+    target_link_libraries(${TESTNAME} gpu-benchmark-lib)
+    target_include_directories(${TESTNAME} PUBLIC ${GPU_BENCHMARK_INCLUDE_DIR})
 endmacro()
 
 package_add_cpu_test(mkl_test mkl_test.cpp)
