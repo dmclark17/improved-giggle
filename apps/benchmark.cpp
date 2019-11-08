@@ -7,7 +7,9 @@
 
 #include "data_manager.h"
 #include "cpu_benchmark.h"
+#ifdef _IG_HASCUDA
 #include "gpu_benchmark.h"
+#endif
 
 DEFINE_string(benchmark, "mkl", "benchmark to run");
 DEFINE_uint64(number, 1, "Amount of times to run each size");
@@ -49,6 +51,7 @@ int main(int argc, char *argv[]) {
             std::cout << "size: " << size << " time: " << duration / FLAGS_number << " ms" << std::endl;
         }
     } else if (FLAGS_benchmark.compare("cublas") == 0) {
+        #ifdef _IG_HASCUDA
         std::cout << "Running cuBLAS Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         for (int size : matrix_sizes) {
             double duration;
@@ -67,6 +70,9 @@ int main(int argc, char *argv[]) {
             }
             std::cout << "size: " << size << " time: " << duration / FLAGS_number << " ms" << std::endl;
         }
+        #else
+        std::cout << "CUDA not supported" << std::endl;
+        #endif
     } else {
         std::cout << "Benchmark " << FLAGS_benchmark << " not supported" << std::endl;
     }

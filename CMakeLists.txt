@@ -1,12 +1,23 @@
 cmake_minimum_required(VERSION 3.10.1 FATAL_ERROR)
-project(improved-giggle CXX CUDA)
+project(improved-giggle CXX)
+
+include(CheckLanguage)
 
 set(IGIGGLE_SOURCE_DIR $ENV{IMPROVED_GIGGLE_ROOT})
 set(CMAKE_MODULE_PATH ${IGIGGLE_SOURCE_DIR}/cmake)
 
 add_subdirectory(src)
 add_subdirectory(cpu-giggle)
-add_subdirectory(gpu-giggle)
+
+
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+    add_subdirectory(gpu-giggle)
+    add_definitions(-D_IG_HASCUDA)
+endif()
+
+
 add_subdirectory(apps)
 
 
