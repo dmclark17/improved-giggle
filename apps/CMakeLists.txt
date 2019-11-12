@@ -11,6 +11,9 @@ if(CMAKE_CUDA_COMPILER)
     target_include_directories(benchmark PUBLIC ${GPU_BENCHMARK_INCLUDE_DIR})
 endif()
 
+if (IG_MKL_FOUND)
+    add_definitions(-D_IG_HASMKL)
+endif()
 
 find_package(gflags REQUIRED)
 target_link_libraries(benchmark gflags)

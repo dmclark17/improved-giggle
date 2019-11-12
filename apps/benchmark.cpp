@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Running MKL Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = mkl_gemm_execute;
         #else
-        std::cout << "MKL not supported" << std::endl;
+        std::cout << "MKL not found: mkl not supported" << std::endl;
         return 1;
         #endif
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Running cuBLAS Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = cublass_gemm_execute;
         #else
-        std::cout << "CUDA not supported" << std::endl;
+        std::cout << "CUDA compiler not found: cublas not supported" << std::endl;
         return 1;
         #endif
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef _IG_HASMKL
+#ifdef MKL_ILP64
 #include "mkl.h"
 #endif
 
@@ -10,7 +10,7 @@
 #include "cpu_benchmark.h"
 
 void mkl_gemm_execute(GemmRun* run) {
-#ifdef _IG_HASMKL
+#ifdef MKL_ILP64
     CBLAS_LAYOUT layout;
     CBLAS_TRANSPOSE transa, transb;
 
