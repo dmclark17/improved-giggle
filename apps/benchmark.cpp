@@ -31,69 +31,57 @@ int main(int argc, char *argv[]) {
     }
     matrix_sizes.push_back(std::stoi(remain));
 
+    void (*gemm_execute)(GemmRun*);
+
     if (FLAGS_benchmark.compare("mkl") == 0) {
+        #ifdef _IG_HASMKL
         std::cout << "Running MKL Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
-        for (int size : matrix_sizes) {
-            double duration;
-            for (int i = 0; i < FLAGS_number; i++) {
-                GemmRun* run;
-                allocate_run(&run, size);
-                generate_matrix_random(run->a, run->lda, run->m);
-                generate_matrix_random(run->b, run->ldb, run->k);
+        gemm_execute = mkl_gemm_execute;
+        #else
+        std::cout << "MKL not supported" << std::endl;
+        return 1;
+        #endif
 
-                std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-                mkl_gemm_execute(run);
-                std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-                duration += (double) std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-
-                deallocate_run(run);
-            }
-            std::cout << "size: " << size << " time: " << duration / FLAGS_number << " ms" << std::endl;
-        }
     } else if (FLAGS_benchmark.compare("cublas") == 0) {
         #ifdef _IG_HASCUDA
         std::cout << "Running cuBLAS Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
-        for (int size : matrix_sizes) {
-            double duration;
-            for (int i = 0; i < FLAGS_number; i++) {
-                GemmRun* run;
-                allocate_run(&run, size);
-                generate_matrix_random(run->a, run->lda, run->m);
-                generate_matrix_random(run->b, run->ldb, run->k);
-
-                std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-                cublass_gemm_execute(run);
-                std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-                duration += (double) std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-
-                deallocate_run(run);
-            }
-            std::cout << "size: " << size << " time: " << duration / FLAGS_number << " ms" << std::endl;
-        }
+        gemm_execute = cublass_gemm_execute;
         #else
         std::cout << "CUDA not supported" << std::endl;
+        return 1;
         #endif
+
     } else if (FLAGS_benchmark.compare("naiveCPU") == 0) {
         std::cout << "Running naiveCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
-        for (int size : matrix_sizes) {
-            double duration;
-            for (int i = 0; i < FLAGS_number; i++) {
-                GemmRun* run;
-                allocate_run(&run, size);
-                generate_matrix_random(run->a, run->lda, run->m);
-                generate_matrix_random(run->b, run->ldb, run->k);
+        gemm_execute = naiveCPU_gemm_execute;
 
-                std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-                naive_gemm_execute(run);
-                std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-                duration += (double) std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+    } else if (FLAGS_benchmark.compare("opt1CPU") == 0) {
+        std::cout << "Running opt1CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        gemm_execute = opt1CPU_gemm_execute;
 
-                deallocate_run(run);
-            }
-            std::cout << "size: " << size << " time: " << duration / FLAGS_number << " ms" << std::endl;
-        }
     } else {
         std::cout << "Benchmark " << FLAGS_benchmark << " not supported" << std::endl;
+        return 1;
     }
 
+
+    for (int size : matrix_sizes) {
+        double duration;
+        for (int i = 0; i < FLAGS_number; i++) {
+            GemmRun* run;
+            allocate_run(&run, size);
+            generate_matrix_random(run->a, run->lda, run->m);
+            generate_matrix_random(run->b, run->ldb, run->k);
+
+            std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+            gemm_execute(run);
+            std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+            duration += (double) std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+
+            deallocate_run(run);
+        }
+        std::cout << "size: " << size << " time: " << duration / FLAGS_number << " ms" << std::endl;
+    }
+
+    return 0;
 }
