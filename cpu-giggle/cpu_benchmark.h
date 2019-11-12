@@ -6,6 +6,8 @@
 
 void mkl_gemm_execute(GemmRun* run);
 
-void naive_gemm_execute(GemmRun* run);
+void naiveCPU_gemm_execute(GemmRun* run);
+
+void opt1CPU_gemm_execute(GemmRun* run);
 
 #endif /* end of include guard: _IGIGGLE_MKL_H_ */

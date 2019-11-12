@@ -21,7 +21,7 @@ TEST(NaiveTests, ThreeByThree) {
     generate_matrix_prod(run->a, run->lda, run->m);
     generate_matrix_diff(run->b, run->ldb, run->k);
 
-    naive_gemm_execute(run);
+    naiveCPU_gemm_execute(run);
 
     for (int i = 0; i < run->m; i++) {
         for (int j = 0; j < run->n; j++) {
