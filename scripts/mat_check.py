@@ -18,9 +18,26 @@ def generate_matrix_prod(length):
 
 
 if __name__ == "__main__":
-    A = generate_matrix_prod(3)
-    B = generate_matrix_diff(3)
+    A = generate_matrix_prod(4)
+    B = generate_matrix_diff(4)
 
     C = np.matmul(A, B)
 
-    print(C)
+    C_test = np.zeros((4, 4))
+
+    i = 0
+    print(B)
+
+
+    print(B[:2, :2])
+    print(A[:, [i, i+1]])
+    print(np.matmul(A[:, [i, i+1]], B[:2, :2]))
+
+    # for i in range(0, 4, 2):
+    i = 0
+    C_test += np.matmul(A[:, [i, i+1]], B[[i, i+1], [i, i+1]])
+
+    # print(C)
+
+    print("C_test")
+    print(C_test)

@@ -1,3 +1,5 @@
+#include "iostream"
+
 #include "data_manager.h"
 #include "cpu_benchmark.h"
 
@@ -6,11 +8,14 @@
 TEST(NaiveTests, BigTest) {
     GemmRun* run;
     GemmRun* run_mkl;
-    allocate_run(&run, 256);
-    allocate_run(&run_mkl, 256);
+    allocate_run(&run, 512);
+    allocate_run(&run_mkl, 512);
 
     generate_matrix_random(run->a, run->lda, run->m);
     generate_matrix_random(run->b, run->ldb, run->k);
+
+    // generate_matrix_prod(run->a, run->lda, run->m);
+    // generate_matrix_diff(run->b, run->ldb, run->k);
 
     // to free laters
     float* temp_a = run_mkl->a;
@@ -22,10 +27,8 @@ TEST(NaiveTests, BigTest) {
     naiveCPU_gemm_execute(run_mkl);
     opt1CPU_gemm_execute(run);
 
-    // print_matrix(run->c, run->ldc, run->m);
-
-    for (int i = 0; i < run->m; i++) {
-        for (int j = 0; j < run->n; j++) {
+    for (unsigned int i = 0; i < run->m; i++) {
+        for (unsigned int j = 0; j < run->n; j++) {
             ASSERT_NEAR(run->c[i * run->ldc + j], run_mkl->c[i * run->ldc + j],
                         1e-3);
         }
