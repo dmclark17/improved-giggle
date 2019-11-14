@@ -3,8 +3,6 @@
 
 #include "data_manager.h"
 
-#include "malloc.h"
-
 
 int allocate_run(GemmRun** run, unsigned int size) {
     (*run) = new GemmRun;
@@ -21,9 +19,9 @@ int allocate_run(GemmRun** run, unsigned int size) {
     (*run)->alpha = 1.0;
     (*run)->beta = 0.0;
 
-    (*run)->a = (float *)_mm_malloc( (*run)->lda * (*run)->m * sizeof(float), 64 );
-    (*run)->b = (float *)_mm_malloc( (*run)->ldb * (*run)->k * sizeof(float), 64 );
-    (*run)->c = (float *)_mm_malloc( (*run)->ldc * (*run)->m * sizeof(float), 64 );
+    (*run)->a = (float *)aligned_alloc( 64, (*run)->lda * (*run)->m * sizeof(float) );
+    (*run)->b = (float *)aligned_alloc( 64, (*run)->ldb * (*run)->k * sizeof(float) );
+    (*run)->c = (float *)aligned_alloc( 64, (*run)->ldc * (*run)->m * sizeof(float) );
 
     if ( (*run)->a == NULL || (*run)->b == NULL || (*run)->c == NULL ) {
         printf("\n Can't allocate memory arrays");
