@@ -25,8 +25,8 @@ TEST(CUBLASTests, ThreeByThree) {
 
     cublass_gemm_execute(run);
 
-    for (int i = 0; i < run->m; i++) {
-        for (int j = 0; j < run->n; j++) {
+    for (unsigned int i = 0; i < run->m; i++) {
+        for (unsigned int j = 0; j < run->n; j++) {
             ASSERT_TRUE(run->c[IDX2C(i, j, run->ldc)] == expected[i * run->ldc + j]);
         }
     }

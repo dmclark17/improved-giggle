@@ -2,28 +2,30 @@
 #define _IGIGGLE_DM_H_
 
 typedef struct GemmRun {
-    int m;
-    int n;
-    int k;
+    unsigned int m;
+    unsigned int n;
+    unsigned int k;
     float* a;
     float* b;
     float* c;
-    int lda;
-    int ldb;
-    int ldc;
+    unsigned int lda;
+    unsigned int ldb;
+    unsigned int ldc;
     float alpha;
     float beta;
 } GemmRun;
 
-int allocate_run(GemmRun** run, int size);
+int allocate_run(GemmRun** run, unsigned int size);
 
-void generate_matrix_prod(float* mat, int ld, int n);
+void generate_matrix_prod(float* mat, unsigned int ld, unsigned int n);
 
-void generate_matrix_diff(float* mat, int ld, int n);
+void generate_matrix_diff(float* mat, unsigned int ld, unsigned int n);
 
-void generate_matrix_random(float* mat, int ld, int n);
+void generate_matrix_random(float* mat, unsigned int ld, unsigned int n);
 
-void print_matrix(float* mat, int ld, int n);
+void print_matrix(float* mat, unsigned int ld, unsigned int n);
+
+void print_panel(float* mat, unsigned int ld, int m, unsigned int n);
 
 void deallocate_run(GemmRun* run);
 

@@ -23,8 +23,8 @@ TEST(NaiveTests, ThreeByThree) {
 
     naiveCPU_gemm_execute(run);
 
-    for (int i = 0; i < run->m; i++) {
-        for (int j = 0; j < run->n; j++) {
+    for (unsigned int i = 0; i < run->m; i++) {
+        for (unsigned int j = 0; j < run->n; j++) {
             ASSERT_NEAR(run->c[i * run->ldc + j], expected[i * run->ldc + j],
                         1e-10);
         }
@@ -53,8 +53,8 @@ TEST(NaiveTests, BigTest) {
     mkl_gemm_execute(run_mkl);
     naiveCPU_gemm_execute(run);
 
-    for (int i = 0; i < run->m; i++) {
-        for (int j = 0; j < run->n; j++) {
+    for (unsigned int i = 0; i < run->m; i++) {
+        for (unsigned int j = 0; j < run->n; j++) {
             ASSERT_NEAR(run->c[i * run->ldc + j], run_mkl->c[i * run->ldc + j],
                         1e-3);
         }

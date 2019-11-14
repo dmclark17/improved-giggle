@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
     for (int size : matrix_sizes) {
         double duration;
-        for (int i = 0; i < FLAGS_number; i++) {
+        for (unsigned int i = 0; i < FLAGS_number; i++) {
             GemmRun* run;
             allocate_run(&run, size);
             generate_matrix_random(run->a, run->lda, run->m);
