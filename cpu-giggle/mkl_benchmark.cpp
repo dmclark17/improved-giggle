@@ -11,6 +11,7 @@
 
 void mkl_gemm_execute(GemmRun* run) {
 #ifdef MKL_ILP64
+    mkl_set_num_threads(1);
     CBLAS_LAYOUT layout;
     CBLAS_TRANSPOSE transa, transb;
 
