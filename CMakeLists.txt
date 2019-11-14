@@ -6,6 +6,8 @@ include(CheckLanguage)
 set(IGIGGLE_SOURCE_DIR $ENV{IMPROVED_GIGGLE_ROOT})
 set(CMAKE_MODULE_PATH ${IGIGGLE_SOURCE_DIR}/cmake)
 
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+
 add_subdirectory(src)
 add_subdirectory(cpu-giggle)
 
