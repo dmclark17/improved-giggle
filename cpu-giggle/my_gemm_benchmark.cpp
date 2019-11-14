@@ -6,9 +6,9 @@
 #include "cpu_benchmark.h"
 
 
-#define NC 64
-#define KC 64
-#define MR 16
+#define NC 128
+#define KC 128
+#define MR 32
 #define NR 1
 
 
@@ -80,9 +80,13 @@ void opt1CPU_aux(int i, float* a_pack, float* b_pack, float* c_pack) {
       - c_pack will be in row major?!
     */
     for (int pack_i = 0; pack_i < MR; pack_i++) {
-        for (int pack_j = 0; pack_j < KC; pack_j++) {
-            c_pack[pack_i * NC + pack_j] = a_pack[i * KC + pack_j] * b_pack[pack_i * KC + pack_j];
-            // printf("%f\n", c_pack[pack_i * NC + pack_j]);
+        for (int pack_j = 0; pack_j < NC; pack_j++) {
+            c_pack[pack_i * NC + pack_j] = 0;
+
+            for (int pack_z = 0; pack_z < KC; pack_z++) {
+                c_pack[pack_i * NC + pack_j] += (a_pack[(i + pack_i) * KC + pack_z] * b_pack[pack_j * KC + pack_z]);
+                // printf("%f\n", c_pack[pack_i * NC + pack_j]);
+            }
         }
     }
 }

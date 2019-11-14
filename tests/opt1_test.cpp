@@ -6,8 +6,8 @@
 TEST(NaiveTests, BigTest) {
     GemmRun* run;
     GemmRun* run_mkl;
-    allocate_run(&run, 128);
-    allocate_run(&run_mkl, 128);
+    allocate_run(&run, 256);
+    allocate_run(&run_mkl, 256);
 
     generate_matrix_random(run->a, run->lda, run->m);
     generate_matrix_random(run->b, run->ldb, run->k);
