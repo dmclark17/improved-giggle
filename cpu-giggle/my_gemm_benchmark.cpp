@@ -6,9 +6,9 @@
 #include "cpu_benchmark.h"
 
 
-#define NC 128
-#define KC 128
-#define MR 32
+#define NC 256
+#define KC 256
+#define MR 128
 #define NR 1
 
 
@@ -28,21 +28,22 @@ void naiveCPU_gemm_execute(GemmRun* run) {
 }
 
 
-void opt1CPU_packA(GemmRun* run, int p, float* a_pack) {
+inline void opt1CPU_packA(GemmRun* run, int p, float* a_pack) {
     /*
       utility function for packing A
       - Packs the A matrix into a panel of size m by k_c
       - Within the packed array, the data should be in row major format
     */
+
     for (int i = 0; i < run->m; i++) {
         for (int j = 0; j < KC; j++) {
-            a_pack[i * KC + j] = run->a[run->lda * i + p + j];
+            a_pack[i * KC + j] = run->a[p + run->lda * i + j];
         }
     }
 }
 
 
-void opt1CPU_packB(GemmRun* run, int p, int j, float* b_pack) {
+inline void opt1CPU_packB(GemmRun* run, int p, int j, float* b_pack) {
     /*
       utility function for packing B
       - Packs B into a block of size n_c and k_c
@@ -50,30 +51,30 @@ void opt1CPU_packB(GemmRun* run, int p, int j, float* b_pack) {
       maybe this should be some sort of block form, but we can start with pure
       column major format for now?
     */
-    for (int pack_j = 0; pack_j < NC; pack_j++) {
-        for (int pack_i = 0; pack_i < KC; pack_i++) {
-            b_pack[pack_j * KC + pack_i] = run->b[(run->lda * p + j) +
-                                                  (pack_i * NC + pack_j)];
+    unsigned int offset = run->ldb * p + j;
+    for (int pack_i = 0; pack_i < KC; pack_i++) {
+        for (int pack_j = 0; pack_j < NC; pack_j++) {
+            b_pack[pack_j * KC + pack_i] = run->b[offset + pack_i * run->ldb + pack_j];
         }
     }
 }
 
 
-void opt1CPU_unpackC(GemmRun* run, int j, int i, float* c_pack) {
+inline void opt1CPU_unpackC(GemmRun* run, int j, int i, float* c_pack) {
     /*
       utility function for unpacking C
       - Unpacks a m_r by n_c submatrix into C
     */
+    unsigned int offset = i * run->ldc + j;
     for (int pack_i = 0; pack_i < MR; pack_i++) {
         for (int pack_j = 0; pack_j < NC; pack_j++) {
-            run->c[(i * run->ldc + j) + (pack_i * NC + pack_j)] += c_pack[pack_i * NC + pack_j];
-            // printf("%f\n", run->c[(i * run->ldc + j) + (pack_i * NC + pack_j)]);
+            run->c[offset + pack_i * run->ldc + pack_j] += c_pack[pack_i * NC + pack_j];
         }
     }
 }
 
 
-void opt1CPU_aux(int i, float* a_pack, float* b_pack, float* c_pack) {
+inline void opt1CPU_aux(int i, float* a_pack, float* b_pack, float* c_pack) {
     /*
       - a_pack should be in row major format
       - b_pack should be in column major
@@ -84,15 +85,14 @@ void opt1CPU_aux(int i, float* a_pack, float* b_pack, float* c_pack) {
             c_pack[pack_i * NC + pack_j] = 0;
 
             for (int pack_z = 0; pack_z < KC; pack_z++) {
-                c_pack[pack_i * NC + pack_j] += (a_pack[(i + pack_i) * KC + pack_z] * b_pack[pack_j * KC + pack_z]);
-                // printf("%f\n", c_pack[pack_i * NC + pack_j]);
+                c_pack[pack_i * NC + pack_j] += (a_pack[pack_i * KC + pack_z] * b_pack[pack_j * KC + pack_z]);
             }
         }
     }
 }
 
 
-void opt1CPU_gepb(GemmRun* run, int p, int j, float* a_pack, float* b_pack, float* c_pack) {
+inline void opt1CPU_gepb(GemmRun* run, int p, int j, float* a_pack, float* b_pack, float* c_pack) {
     /*
       This should
       - pack B
@@ -100,13 +100,13 @@ void opt1CPU_gepb(GemmRun* run, int p, int j, float* a_pack, float* b_pack, floa
     */
     opt1CPU_packB(run, p, j, b_pack);
     for (int i = 0; i < run->m; i += MR) {
-        opt1CPU_aux(i, a_pack, b_pack, c_pack);
+        opt1CPU_aux(0, a_pack + (i * KC), b_pack, c_pack);
         opt1CPU_unpackC(run, j, i, c_pack);
     }
 }
 
 
-void opt1CPU_gepp(GemmRun* run, int p, float* a_pack, float* b_pack, float* c_pack) {
+inline void opt1CPU_gepp(GemmRun* run, int p, float* a_pack, float* b_pack, float* c_pack) {
     /*
       This should
       - pack A: A is in row major format,
