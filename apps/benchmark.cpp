@@ -59,6 +59,10 @@ int main(int argc, char *argv[]) {
         std::cout << "Running opt1CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = opt1CPU_gemm_execute;
 
+    } else if (FLAGS_benchmark.compare("opt2CPU") == 0) {
+        std::cout << "Running opt2CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        gemm_execute = opt2CPU_gemm_execute;
+
     } else {
         std::cout << "Benchmark " << FLAGS_benchmark << " not supported" << std::endl;
         return 1;
