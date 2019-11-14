@@ -25,7 +25,7 @@ void generate_matrix_random(float* mat, unsigned int ld, unsigned int n);
 
 void print_matrix(float* mat, unsigned int ld, unsigned int n);
 
-void print_panel(float* mat, unsigned int ld, int m, unsigned int n);
+void print_panel(float* mat, unsigned int ld, unsigned int m, unsigned int n);
 
 void deallocate_run(GemmRun* run);
 
