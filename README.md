@@ -5,6 +5,12 @@ Linear algebra benchmarking and implementations
 
 Make sure the `IMPROVED_GIGGLE_ROOT` environment variable is set to the root of the project
 
+`set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")`
+
+`sudo sh -c 'echo -1 >/proc/sys/kernel/perf_event_paranoid'`
+
+`toplev.py -d -l3 ../improved-giggle/build/apps/benchmark --sizes 1024 --benchmark opt1CPU`
+
 ```
 ./apps/benchmark --benchmark {mlk,cublas} --number 1 --sizes 512,1024
 ```
@@ -25,5 +31,18 @@ BE/Mem         Backend_Bound.Memory_Bound.DRAM_Bound  % Stalls                 7
 	accesses to external memory (DRAM) by loads...
 	Sampling events:  mem_load_retired.l3_miss:pp
 MUX                                                   %                         5.26
+	PerfMon Event Multiplexing accuracy indicator
+```
+
+
+### Opt1
+
+```
+RET            Retiring             % Slots                  96.67
+RET            Retiring.Base        % Slots                  96.63
+RET            Retiring.Base.Other  % Uops                   95.81  <==
+	This metric represents non-floating-point (FP) uop fraction
+	the CPU has executed...
+MUX                                 %                         5.25
 	PerfMon Event Multiplexing accuracy indicator
 ```
