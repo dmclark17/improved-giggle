@@ -1,6 +1,7 @@
 add_library(cpu-benchmark-lib STATIC
     mkl_benchmark.cpp
-    my_gemm_benchmark.cpp
+    opt1_benchmark.cpp
+    naive_benchmark.cpp
     cpu_benchmark.h
 )
 
