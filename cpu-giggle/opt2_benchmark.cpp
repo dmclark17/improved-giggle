@@ -24,7 +24,7 @@ inline void opt2CPU_packA(GemmRun* run, unsigned int p, float* a_pack) {
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < KC; j += 8) {
             src = _mm256_load_ps(run->a + (p + run->lda * i + j));
-            // _mm256_store_ps(a_pack + (i * KC + j), src);
+            _mm256_store_ps(a_pack + (i * KC + j), src);
             // print_panel(a_pack, KC, KC, run->m);
         }
     }
