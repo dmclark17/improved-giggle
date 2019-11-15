@@ -93,10 +93,16 @@ inline void opt2CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
       - b_pack should be in column major
       - c_pack will be in row major?!
     */
-    for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
-        for (unsigned int pack_j = 0; pack_j < NC; pack_j++) {
-            for (unsigned int pack_z = 0; pack_z < KC; pack_z++) {
-                c_pack[pack_i * NC + pack_j] += a_pack[pack_i * KC + pack_z] * b_pack[pack_j + NC * pack_z];
+    __m256 a, b, c;
+    for (unsigned int pack_z = 0; pack_z < KC; pack_z++) {
+        for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
+            // Load a and scatter
+            a = _mm256_broadcast_ss(a_pack + pack_i * KC + pack_z);
+            for (unsigned int pack_j = 0; pack_j < NC; pack_j += 8) {
+                b = _mm256_load_ps(b_pack + NC * pack_z + pack_j);
+                c = _mm256_load_ps(c_pack + pack_i * NC + pack_j);
+                c = _mm256_fmadd_ps(a, b, c);
+                _mm256_store_ps(c_pack + pack_i * NC + pack_j, c);
             }
         }
     }
@@ -111,7 +117,7 @@ inline void opt2CPU_gepb(GemmRun* run, unsigned int p, unsigned int j, float* a_
     */
     opt2CPU_packB(run, p, j, b_pack);
     for (unsigned int i = 0; i < run->m; i += MR) {
-        opt2CPU_aux(a_pack + (i * KC), b_pack, c_pack);
+        opt2CPU_aux_simd(a_pack + (i * KC), b_pack, c_pack);
         opt2CPU_unpackC(run, j, i, c_pack);
     }
 }
