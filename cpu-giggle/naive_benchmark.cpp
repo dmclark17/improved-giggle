@@ -6,12 +6,6 @@
 #include "cpu_benchmark.h"
 
 
-#define NC 64
-#define KC 64
-#define MR 16
-#define NR 1
-
-
 void naiveCPU_gemm_execute(GemmRun* run) {
     float dot_prod = 0;
     for (unsigned int i = 0; i < run->m; i++) {

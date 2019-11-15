@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
 
     for (int size : matrix_sizes) {
-        double duration;
+        double duration = 0;
         for (unsigned int i = 0; i < FLAGS_number; i++) {
             GemmRun* run;
             allocate_run(&run, size);
