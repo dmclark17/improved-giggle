@@ -10,5 +10,5 @@ target_link_libraries(gpu-benchmark-lib -lcublas)
 include_directories(gpu-benchmark-lib ${IGIGGLE_HELPER_INCLUDE_DIR})
 
 
-set_target_properties(gpu-benchmark-lib PROPERTIES CXX_STANDARD 11)
+set_target_properties(gpu-benchmark-lib PROPERTIES CXX_STANDARD 17)
 set_target_properties(gpu-benchmark-lib PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

@@ -20,7 +20,7 @@ target_link_libraries(cpu-benchmark-lib ${BLAS_LIBRARIES} ${CMAKE_DL_LIBS} ${CMA
 
 include_directories(cpu-benchmark-lib ${IGIGGLE_HELPER_INCLUDE_DIR})
 
-set_target_properties(cpu-benchmark-lib PROPERTIES CXX_STANDARD 11)
+set_target_properties(cpu-benchmark-lib PROPERTIES CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall -Wextra")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx -Wall -Wextra")

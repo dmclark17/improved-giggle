@@ -19,4 +19,4 @@ find_package(gflags REQUIRED)
 target_link_libraries(benchmark gflags)
 
 
-set_target_properties(benchmark PROPERTIES CXX_STANDARD 11)
+set_target_properties(benchmark PROPERTIES CXX_STANDARD 17)
