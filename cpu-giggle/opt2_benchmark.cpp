@@ -111,9 +111,12 @@ void opt2CPU_gemm_execute(GemmRun* run) {
       This should call gepp iteration over panels. Panel A_p and B_p will
       make a contribution to all of C?
     */
-    float* a_pack = (float *)calloc( KC * run->m, sizeof(float) );
-    float* b_pack = (float *)calloc( KC * NC, sizeof(float) );
-    float* c_pack = (float *)calloc( MR * NC, sizeof(float) );
+    float* a_pack = (float *)aligned_alloc( 64, KC * run->m * sizeof(float) );
+    float* b_pack = (float *)aligned_alloc( 64, KC * NC * sizeof(float) );
+    float* c_pack = (float *)aligned_alloc( 64, MR * NC * sizeof(float) );
+    for (unsigned int i = 0; i < MR * NC; i++) {
+        c_pack[i] = 0;
+    }
 
     for (unsigned int p = 0; p < run->k; p += KC) {
         opt2CPU_gepp(run, p, a_pack, b_pack, c_pack);
