@@ -6,9 +6,9 @@
 #include "cpu_benchmark.h"
 
 
-#define NC 64
-#define KC 64
-#define MR 16
+#define NC 128
+#define KC 128
+#define MR 32
 #define NR 1
 
 
