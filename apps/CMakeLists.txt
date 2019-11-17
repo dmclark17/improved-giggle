@@ -13,6 +13,7 @@ endif()
 
 if (IG_MKL_FOUND)
     add_definitions(-D_IG_HASMKL)
+    target_link_libraries(benchmark ${OpenMP_CXX_FLAGS})
 endif()
 
 find_package(gflags REQUIRED)

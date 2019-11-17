@@ -1,6 +1,6 @@
 add_library(cpu-benchmark-lib STATIC
     mkl_benchmark.cpp
-    opt2_benchmark.cpp
+    opt2_512_benchmark.cpp
     opt1_benchmark.cpp
     naive_benchmark.cpp
     cpu_benchmark.h
@@ -22,5 +22,5 @@ include_directories(cpu-benchmark-lib ${IGIGGLE_HELPER_INCLUDE_DIR})
 
 set_target_properties(cpu-benchmark-lib PROPERTIES CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall -Wextra")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx -Wall -Wextra")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -Wall -Wextra")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx -Wall -Wextra")

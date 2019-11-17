@@ -3,11 +3,15 @@ project(improved-giggle CXX)
 
 include(CheckLanguage)
 
+
+find_package(OpenMP REQUIRED)
+
+
 set(IGIGGLE_SOURCE_DIR $ENV{IMPROVED_GIGGLE_ROOT})
 set(CMAKE_MODULE_PATH ${IGIGGLE_SOURCE_DIR}/cmake)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mavx -mfma -Wall -Wextra")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mavx -mfma -Wall -Wextra")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -no-vec -O3 -mavx -mfma -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -O3 -mavx -mfma -Wall -Wextra")
 
 add_subdirectory(src)
 add_subdirectory(cpu-giggle)
