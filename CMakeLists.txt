@@ -3,21 +3,28 @@ project(improved-giggle CXX)
 
 include(CheckLanguage)
 
-
-find_package(OpenMP REQUIRED)
-
-
 set(IGIGGLE_SOURCE_DIR $ENV{IMPROVED_GIGGLE_ROOT})
 set(CMAKE_MODULE_PATH ${IGIGGLE_SOURCE_DIR}/cmake)
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -no-vec -O3 -mavx -mfma -Wall -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -O3 -mavx -mfma -Wall -Wextra")
+check_language(CUDA)
+
+find_package(BLAS REQUIRED)
+find_package(MKL)
+find_package(OpenMP)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-vec")
+
+if(OpenMP_FOUND)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 
 add_subdirectory(src)
 add_subdirectory(cpu-giggle)
 
 
-check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
     add_subdirectory(gpu-giggle)
