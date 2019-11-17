@@ -26,6 +26,16 @@ inline void opt2CPU_packA(GemmRun* run, unsigned int p, float* a_pack) {
       - Packs the A matrix into a panel of size m by k_c
       - Within the packed array, the data should be in row major format
     */
+    #ifdef __AVX512F__
+    __m512 src;
+    for (unsigned int i = 0; i < run->m; i++) {
+        for (unsigned int j = 0; j < KC; j += 16) {
+            src = _mm512_load_ps(run->a + (p + run->lda * i + j));
+            _mm512_store_ps(a_pack + (i * KC + j), src);
+        }
+    }
+    #else
+    #ifdef __AVX__
     __m256 src;
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < KC; j += 8) {
@@ -33,6 +43,8 @@ inline void opt2CPU_packA(GemmRun* run, unsigned int p, float* a_pack) {
             _mm256_store_ps(a_pack + (i * KC + j), src);
         }
     }
+    #endif
+    #endif
 }
 
 
@@ -45,6 +57,16 @@ inline void opt2CPU_packB(GemmRun* run, unsigned int p, unsigned int j, float* b
       column major format for now?
     */
     unsigned int offset = run->ldb * p + j;
+    #ifdef __AVX512F__
+    __m512 src;
+    for (unsigned int pack_i = 0; pack_i < KC; pack_i++) {
+        for (unsigned int pack_j = 0; pack_j < NC; pack_j += 16) {
+            src = _mm512_load_ps(run->b + offset + pack_i * run->ldb + pack_j);
+            _mm512_store_ps(b_pack + pack_i * NC + pack_j, src);
+        }
+    }
+    #else
+    #ifdef __AVX__
     __m256 src;
     for (unsigned int pack_i = 0; pack_i < KC; pack_i++) {
         for (unsigned int pack_j = 0; pack_j < NC; pack_j += 8) {
@@ -52,6 +74,8 @@ inline void opt2CPU_packB(GemmRun* run, unsigned int p, unsigned int j, float* b
             _mm256_store_ps(b_pack + pack_i * NC + pack_j, src);
         }
     }
+    #endif
+    #endif
 }
 
 
@@ -61,6 +85,22 @@ inline void opt2CPU_unpackC(GemmRun* run, unsigned int j, unsigned int i, float*
       - Unpacks a m_r by n_c submatrix into C
     */
     unsigned int offset = i * run->ldc + j;
+    #ifdef __AVX512F__
+    __m512 m_cpack, m_c, m_sum, zero_vec;
+    zero_vec = _mm512_setzero_ps();
+    for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
+        for (unsigned int pack_j = 0; pack_j < NC; pack_j += 16) {
+            m_cpack = _mm512_load_ps(c_pack + pack_i * NC + pack_j);
+            m_c = _mm512_load_ps(run->c + offset + pack_i * run->ldc + pack_j);
+
+            m_sum = _mm512_add_ps(m_cpack, m_c);
+
+            _mm512_store_ps(run->c + offset + pack_i * run->ldc + pack_j, m_sum);
+            _mm512_store_ps(c_pack + pack_i * NC + pack_j, zero_vec);
+        }
+    }
+    #else
+    #ifdef __AVX__
     __m256 m_cpack, m_c, m_sum, zero_vec;
     zero_vec = _mm256_setzero_ps();
     for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
@@ -74,22 +114,8 @@ inline void opt2CPU_unpackC(GemmRun* run, unsigned int j, unsigned int i, float*
             _mm256_store_ps(c_pack + pack_i * NC + pack_j, zero_vec);
         }
     }
-}
-
-
-inline void opt2CPU_aux(float* a_pack, float* b_pack, float* c_pack) {
-    /*
-      - a_pack should be in row major format
-      - b_pack should be in column major
-      - c_pack will be in row major?!
-    */
-    for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
-        for (unsigned int pack_j = 0; pack_j < NC; pack_j++) {
-            for (unsigned int pack_z = 0; pack_z < KC; pack_z++) {
-                c_pack[pack_i * NC + pack_j] += a_pack[pack_i * KC + pack_z] * b_pack[pack_j + NC * pack_z];
-            }
-        }
-    }
+    #endif
+    #endif
 }
 
 
@@ -99,6 +125,22 @@ inline void opt2CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
       - b_pack should be in column major
       - c_pack will be in row major?!
     */
+    #ifdef __AVX512F__
+    __m512 a, b, c;
+    for (unsigned int pack_z = 0; pack_z < KC; pack_z++) {
+        for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
+            // Load a and scatter
+            a = _mm512_broadcast_f32x4(_mm_broadcast_ss(a_pack + pack_i * KC + pack_z));
+            for (unsigned int pack_j = 0; pack_j < NC; pack_j += 16) {
+                b = _mm512_load_ps(b_pack + NC * pack_z + pack_j);
+                c = _mm512_load_ps(c_pack + pack_i * NC + pack_j);
+                c = _mm512_fmadd_ps(a, b, c);
+                _mm512_store_ps(c_pack + pack_i * NC + pack_j, c);
+            }
+        }
+    }
+    #else
+    #ifdef __AVX__
     __m256 a, b, c;
     for (unsigned int pack_z = 0; pack_z < KC; pack_z++) {
         for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
@@ -112,6 +154,8 @@ inline void opt2CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
             }
         }
     }
+    #endif
+    #endif
 }
 
 
@@ -150,10 +194,19 @@ void opt2CPU_gemm_execute(GemmRun* run) {
     float* a_pack = (float *)aligned_alloc( 64, KC * run->m * sizeof(float) );
     float* b_pack = (float *)aligned_alloc( 64, KC * NC * sizeof(float) );
     float* c_pack = (float *)aligned_alloc( 64, MR * NC * sizeof(float) );
+    #ifdef __AVX512F__
+    __m512 zero_vec = _mm512_setzero_ps();
+    for (unsigned int i = 0; i < MR * NC; i += 16) {
+        _mm512_store_ps(c_pack + i, zero_vec);
+    }
+    #else
+    #ifdef __AVX__
     __m256 zero_vec = _mm256_setzero_ps();
     for (unsigned int i = 0; i < MR * NC; i += 8) {
         _mm256_store_ps(c_pack + i, zero_vec);
     }
+    #endif
+    #endif
 
     for (unsigned int p = 0; p < run->k; p += KC) {
         opt2CPU_gepp(run, p, a_pack, b_pack, c_pack);

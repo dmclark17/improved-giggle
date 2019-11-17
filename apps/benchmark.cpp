@@ -61,6 +61,11 @@ int main(int argc, char *argv[]) {
 
     } else if (FLAGS_benchmark.compare("opt2CPU") == 0) {
         std::cout << "Running opt2CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        #ifdef __AVX512F__
+        std::cout << "Using AVX-512F" << std::endl;
+        #else
+        std::cout << "Using AVXF" << std::endl;
+        #endif
         gemm_execute = opt2CPU_gemm_execute;
 
     } else {
