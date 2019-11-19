@@ -16,6 +16,20 @@ Make sure the `IMPROVED_GIGGLE_ROOT` environment variable is set to the root of 
 ```
 
 
+### Cannon Setup
+
+```
+module load cmake/3.12.1-fasrc01
+module load gflags/2.1.2-fasrc01
+module load intel/19.0.5-fasrc01
+module load intel-mkl/2019.5.281-fasrc01
+
+module load cmake/3.12.1-fasrc01
+module load gflags/2.1.2-fasrc01
+module load intel/19.0.5-fasrc01
+module load cuda/10.1.243-fasrc01
+```
+
 ## CPU implementations
 
 ### Naive
