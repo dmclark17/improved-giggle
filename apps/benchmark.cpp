@@ -68,6 +68,15 @@ int main(int argc, char *argv[]) {
         #endif
         gemm_execute = opt2CPU_gemm_execute;
 
+    } else if (FLAGS_benchmark.compare("opt3CPU") == 0) {
+        std::cout << "Running opt3CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        #ifdef __AVX512F__
+        std::cout << "Using AVX-512F" << std::endl;
+        #else
+        std::cout << "Using AVXF" << std::endl;
+        #endif
+        gemm_execute = opt3CPU_gemm_execute;
+
     } else {
         std::cout << "Benchmark " << FLAGS_benchmark << " not supported" << std::endl;
         return 1;

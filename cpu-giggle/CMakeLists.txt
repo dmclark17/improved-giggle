@@ -1,5 +1,6 @@
 add_library(cpu-benchmark-lib STATIC
     mkl_benchmark.cpp
+    opt3_benchmark.cpp
     opt2_benchmark.cpp
     opt1_benchmark.cpp
     naive_benchmark.cpp
