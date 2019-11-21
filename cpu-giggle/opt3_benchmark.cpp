@@ -53,10 +53,13 @@ inline void opt3CPU_packB(GemmRun* run, unsigned int p, unsigned int j, float* b
     unsigned int offset = run->ldb * p + j;
     #ifdef __AVX512F__
     __m512 src;
-    for (unsigned int pack_i = 0; pack_i < KC; pack_i++) {
-        for (unsigned int pack_j = 0; pack_j < NC; pack_j += 16) {
-            src = _mm512_load_ps(run->b + offset + pack_i * run->ldb + pack_j);
-            _mm512_store_ps(b_pack + pack_i * NC + pack_j, src);
+    for (unsigned int pack_j = 0; pack_j < NC; pack_j += NR) {
+        for (unsigned int pack_i = 0; pack_i < KC; pack_i++) {
+            for (unsigned int pack_n = 0; pack_n < NR; pack_n += 16) {
+                src = _mm512_load_ps(run->b + offset + pack_i * run->ldb + pack_j + pack_n);
+                _mm512_store_ps(b_pack + (pack_j * KC) + (pack_i * NR) + pack_n, src);
+            }
+
         }
     }
     #else
@@ -124,15 +127,17 @@ inline void opt3CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
     */
     #ifdef __AVX512F__
     __m512 a, b, c;
-    for (unsigned int pack_z = 0; pack_z < KC; pack_z++) {
-        for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
-            // Load a and scatter
-            a = _mm512_broadcast_f32x4(_mm_broadcast_ss(a_pack + pack_i * KC + pack_z));
-            for (unsigned int pack_j = 0; pack_j < NC; pack_j += 16) {
-                b = _mm512_load_ps(b_pack + NC * pack_z + pack_j);
-                c = _mm512_load_ps(c_pack + pack_i * NC + pack_j);
-                c = _mm512_fmadd_ps(a, b, c);
-                _mm512_store_ps(c_pack + pack_i * NC + pack_j, c);
+    unsigned int pack_n, pack_i, pack_j, pack_z;
+    for (pack_n = 0; pack_n < NC; pack_n += NR) {
+        for (pack_j = 0; pack_j < NR; pack_j += 16) {
+            for (pack_z = 0; pack_z < KC; pack_z++) {
+                b = _mm512_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + pack_j);
+                for (pack_i = 0; pack_i < MR; pack_i++) {
+                    c = _mm512_load_ps(c_pack + pack_n + (pack_i * NC) + pack_j);
+                    a = _mm512_broadcast_f32x4(_mm_broadcast_ss(a_pack + (pack_i * KC) + pack_z));
+                    c = _mm512_fmadd_ps(a, b, c);
+                    _mm512_store_ps(c_pack + pack_n + pack_i * NC + pack_j, c);
+                }
             }
         }
     }
@@ -140,18 +145,12 @@ inline void opt3CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
     #ifdef __AVX__
     __m256 a, b, c;
     unsigned int pack_n, pack_i, pack_j, pack_z;
-
     for (pack_n = 0; pack_n < NC; pack_n += NR) {
         for (pack_j = 0; pack_j < NR; pack_j += 8) {
-
             for (pack_z = 0; pack_z < KC; pack_z++) {
                 b = _mm256_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + pack_j);
-
                 for (pack_i = 0; pack_i < MR; pack_i++) {
-
-
                     c = _mm256_load_ps(c_pack + pack_n + (pack_i * NC) + pack_j);
-
                     a = _mm256_broadcast_ss(a_pack + (pack_i * KC) + pack_z);
                     c = _mm256_fmadd_ps(a, b, c);
                     _mm256_store_ps(c_pack + pack_n + pack_i * NC + pack_j, c);
