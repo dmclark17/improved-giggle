@@ -8,8 +8,8 @@
 #include "cpu_benchmark.h"
 
 
-#define NC 128
-#define KC 256
+#define NC 256
+#define KC 512
 #define MR 8
 #define NR 8
 
@@ -141,15 +141,18 @@ inline void opt3CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
     __m256 a, b, c;
     unsigned int pack_n, pack_i, pack_j, pack_z;
 
-    unsigned int inner_c, inner_b;
-
     for (pack_n = 0; pack_n < NC; pack_n += NR) {
-        for (pack_z = 0; pack_z < KC; pack_z++) {
-            for (pack_i = 0; pack_i < MR; pack_i++) {
-                a = _mm256_broadcast_ss(a_pack + (pack_i * KC) + pack_z);
-                for (pack_j = 0; pack_j < NR; pack_j += 8) {
+        for (pack_j = 0; pack_j < NR; pack_j += 8) {
+
+            for (pack_z = 0; pack_z < KC; pack_z++) {
+                b = _mm256_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + pack_j);
+
+                for (pack_i = 0; pack_i < MR; pack_i++) {
+
+
                     c = _mm256_load_ps(c_pack + pack_n + (pack_i * NC) + pack_j);
-                    b = _mm256_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + pack_j);
+
+                    a = _mm256_broadcast_ss(a_pack + (pack_i * KC) + pack_z);
                     c = _mm256_fmadd_ps(a, b, c);
                     _mm256_store_ps(c_pack + pack_n + pack_i * NC + pack_j, c);
                 }

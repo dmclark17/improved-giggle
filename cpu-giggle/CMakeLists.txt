@@ -20,3 +20,6 @@ target_link_libraries(cpu-benchmark-lib ${BLAS_LIBRARIES} ${CMAKE_DL_LIBS} ${CMA
 include_directories(cpu-benchmark-lib ${IGIGGLE_HELPER_INCLUDE_DIR})
 
 set_target_properties(cpu-benchmark-lib PROPERTIES CXX_STANDARD 17)
+
+# Outputs the assembly
+#set_target_properties(cpu-benchmark-lib PROPERTIES COMPILE_FLAGS "-save-temps")
