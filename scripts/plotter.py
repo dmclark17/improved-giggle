@@ -4,11 +4,9 @@ import matplotlib.pyplot as plt
 def parse_output(filename, results={}):
     with open(filename, 'r') as f:
         result_string = f.readline()
+
         result_list = []
-        if ("MKL" in result_string):
-            results["MKL"] = result_list
-        elif ("cuBLAS" in result_string):
-            results["cuBLAS"] = result_list
+        results[result_string.split(' ')[1]] = result_list
 
         for line in f:
             line_list = line.strip().split(" ")
@@ -25,12 +23,14 @@ def plot_output(results):
 
     plt.xlabel("Matrix Size")
     plt.ylabel("Time (ms)")
-    plt.title("Matrix-matrix multiplication benchmark")
+    plt.title("Matrix-matrix multiplication benchmark (O0)")
     plt.legend()
-    plt.show()
+    plt.savefig("CPUO0.png")
 
 
 if __name__ == "__main__":
-    results = parse_output("../build/mkl_results.txt")
-    results = parse_output("../build/cublas_results.txt", results=results)
+    results = parse_output("../build/naiveCPU.txt")
+    results = parse_output("../build/opt1CPU.txt", results=results)
+    results = parse_output("../build/opt2CPU.txt", results=results)
+    print(results)
     plot_output(results)
