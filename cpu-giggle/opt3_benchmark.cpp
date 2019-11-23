@@ -8,10 +8,10 @@
 #include "cpu_benchmark.h"
 
 
-#define NC 128
+#define NC 64
 #define KC 1024
-#define MR 8
-#define NR 8
+#define MR 16
+#define NR 16
 
 
 inline void opt3CPU_packA(GemmRun* run, unsigned int p, float* a_pack) {
@@ -101,17 +101,13 @@ inline void opt3CPU_unpackC(GemmRun* run, unsigned int j, unsigned int i, float*
     }
     #else
     #ifdef __AVX__
-    __m256 m_cpack, m_c, m_sum, zero_vec;
-    zero_vec = _mm256_setzero_ps();
+    __m256 m_cpack, m_c;
     for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
         for (unsigned int pack_j = 0; pack_j < NC; pack_j += 8) {
             m_cpack = _mm256_load_ps(c_pack + pack_i * NC + pack_j);
             m_c = _mm256_load_ps(run->c + offset + pack_i * run->ldc + pack_j);
-
-            m_sum = _mm256_add_ps(m_cpack, m_c);
-
-            _mm256_store_ps(run->c + offset + pack_i * run->ldc + pack_j, m_sum);
-            _mm256_store_ps(c_pack + pack_i * NC + pack_j, zero_vec);
+            m_c = _mm256_add_ps(m_cpack, m_c);
+            _mm256_store_ps(run->c + offset + pack_i * run->ldc + pack_j, m_c);
         }
     }
     #endif
@@ -143,35 +139,65 @@ inline void opt3CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
     }
     #else
     #ifdef __AVX__
-    __m256 a, b, c, c1, c2, c3, a1, a2, a3;
+    __m256 a0, a1, a2, a3;
+    __m256 b0, b1;
+    __m256 c0, c1, c2, c3, c4, c5;
     unsigned int pack_n, pack_i, pack_j, pack_z;
     pack_j = 0;
-    for (pack_n = 0; pack_n < NC; pack_n += NR) {
-        for (pack_j = 0; pack_j < NR; pack_j += 8) {
-            for (pack_i = 0; pack_i < MR; pack_i +=4) {
-                c = _mm256_load_ps(c_pack + pack_n + (pack_i * NC) + pack_j);
-                c1 = _mm256_load_ps(c_pack + pack_n + ((pack_i+1) * NC) + pack_j);
-                c2 = _mm256_load_ps(c_pack + pack_n + ((pack_i+2) * NC) + pack_j);
-                c3 = _mm256_load_ps(c_pack + pack_n + ((pack_i+3) * NC) + pack_j);
-                for (pack_z = 0; pack_z < KC; pack_z++) {
-                    b = _mm256_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + pack_j);
 
-                    
-                    a = _mm256_broadcast_ss(a_pack + (pack_i * KC) + pack_z);
+    unsigned int mr_3 = (MR / 3) * 3;
+    for (pack_n = 0; pack_n < NC; pack_n += NR) {
+        for (pack_j = 0; pack_j < NR; pack_j += 8 * 2) {
+            for (pack_i = 0; pack_i < mr_3; pack_i += 3) {
+                c0 =  _mm256_setzero_ps();
+                c1 =  _mm256_setzero_ps();
+                c2 =  _mm256_setzero_ps();
+                c3 =  _mm256_setzero_ps();
+                c4 =  _mm256_setzero_ps();
+                c5 =  _mm256_setzero_ps();
+
+                for (pack_z = 0; pack_z < KC; pack_z++) {
+                    b0 = _mm256_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + (pack_j+0));
+                    b1 = _mm256_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + (pack_j+8));
+
+
+                    a0 = _mm256_broadcast_ss(a_pack + ((pack_i+0) * KC) + pack_z);
                     a1 = _mm256_broadcast_ss(a_pack + ((pack_i+1) * KC) + pack_z);
                     a2 = _mm256_broadcast_ss(a_pack + ((pack_i+2) * KC) + pack_z);
-                    a3 = _mm256_broadcast_ss(a_pack + ((pack_i+3) * KC) + pack_z);
 
 
-                    c = _mm256_fmadd_ps(a, b, c);
-                    c1 = _mm256_fmadd_ps(a1, b, c1);
-                    c2 = _mm256_fmadd_ps(a2, b, c2);
-                    c3 = _mm256_fmadd_ps(a3, b, c3);
+                    c0 = _mm256_fmadd_ps(a0, b0, c0);
+                    c1 = _mm256_fmadd_ps(a1, b0, c1);
+                    c2 = _mm256_fmadd_ps(a0, b1, c2);
+                    c3 = _mm256_fmadd_ps(a1, b1, c3);
+
+                    c4 = _mm256_fmadd_ps(a2, b0, c4);
+                    c5 = _mm256_fmadd_ps(a2, b1, c5);
                 }
-                _mm256_store_ps(c_pack + pack_n + pack_i * NC + pack_j, c);
-                _mm256_store_ps(c_pack + pack_n + (pack_i+1) * NC + pack_j, c1);
-                _mm256_store_ps(c_pack + pack_n + (pack_i+2) * NC + pack_j, c2);
-                _mm256_store_ps(c_pack + pack_n + (pack_i+3) * NC + pack_j, c3);
+                _mm256_store_ps(c_pack + pack_n + (pack_i+0) * NC + (pack_j+0), c0);
+                _mm256_store_ps(c_pack + pack_n + (pack_i+1) * NC + (pack_j+0), c1);
+                _mm256_store_ps(c_pack + pack_n + (pack_i+0) * NC + (pack_j+8), c2);
+                _mm256_store_ps(c_pack + pack_n + (pack_i+1) * NC + (pack_j+8), c3);
+
+                _mm256_store_ps(c_pack + pack_n + (pack_i+2) * NC + (pack_j+0), c4);
+                _mm256_store_ps(c_pack + pack_n + (pack_i+2) * NC + (pack_j+8), c5);
+            }
+
+            for ( ; pack_i < MR; pack_i++) {
+                c0 =  _mm256_setzero_ps();
+                c2 =  _mm256_setzero_ps();
+
+                for (pack_z = 0; pack_z < KC; pack_z++) {
+                    b0 = _mm256_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + (pack_j+0));
+                    b1 = _mm256_load_ps(b_pack + (pack_n * KC) + (NR * pack_z) + (pack_j+8));
+
+                    a0 = _mm256_broadcast_ss(a_pack + ((pack_i+0) * KC) + pack_z);
+
+                    c0 = _mm256_fmadd_ps(a0, b0, c0);
+                    c2 = _mm256_fmadd_ps(a0, b1, c2);
+                }
+                _mm256_store_ps(c_pack + pack_n + (pack_i+0) * NC + (pack_j+0), c0);
+                _mm256_store_ps(c_pack + pack_n + (pack_i+0) * NC + (pack_j+8), c2);
             }
         }
     }
