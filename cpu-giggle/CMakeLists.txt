@@ -23,3 +23,4 @@ set_target_properties(cpu-benchmark-lib PROPERTIES CXX_STANDARD 17)
 
 # Outputs the assembly
 #set_target_properties(cpu-benchmark-lib PROPERTIES COMPILE_FLAGS "-save-temps")
+set_target_properties(cpu-benchmark-lib PROPERTIES COMPILE_FLAGS "-Wa,-adhln=opt3_benchmark.s -g -fverbose-asm")
