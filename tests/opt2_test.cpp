@@ -5,7 +5,7 @@
 
 #include "gtest/gtest.h"
 
-TEST(NaiveTests, BigTest) {
+TEST(Opt2CPUTests, BigTest) {
     GemmRun* run;
     GemmRun* run_mkl;
     allocate_run(&run, 512);

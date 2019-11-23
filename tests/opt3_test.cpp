@@ -5,11 +5,11 @@
 
 #include "gtest/gtest.h"
 
-TEST(NaiveTests, BigTest) {
+TEST(Opt3CPUTests, BigTest) {
     GemmRun* run;
     GemmRun* run_mkl;
-    allocate_run(&run, 512);
-    allocate_run(&run_mkl, 512);
+    allocate_run(&run, 1024);
+    allocate_run(&run_mkl, 1024);
 
     generate_matrix_random(run->a, run->lda, run->m);
     generate_matrix_random(run->b, run->ldb, run->k);
