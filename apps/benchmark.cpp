@@ -51,6 +51,15 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
+    } else if (FLAGS_benchmark.compare("naiveGPU") == 0) {
+        #ifdef _IG_HASCUDA
+        std::cout << "Running naiveGPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        gemm_execute = naiveGPU_gemm_execute;
+        #else
+        std::cout << "CUDA compiler not found: gpu not supported" << std::endl;
+        return 1;
+        #endif
+
     } else if (FLAGS_benchmark.compare("naiveCPU") == 0) {
         std::cout << "Running naiveCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = naiveCPU_gemm_execute;

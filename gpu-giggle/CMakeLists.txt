@@ -1,6 +1,9 @@
 add_library(gpu-benchmark-lib STATIC
     cublas_benchmark.cu
+    naive_benchmark.cu
     gpu_benchmark.h
+    gpu_util.cu
+    gpu_util.h
 )
 
 set(GPU_BENCHMARK_INCLUDE_DIR "${IGIGGLE_SOURCE_DIR}/gpu-giggle" PARENT_SCOPE)
