@@ -28,6 +28,9 @@ macro(package_add_gpu_test TESTNAME)
 
     target_link_libraries(${TESTNAME} gpu-benchmark-lib)
     target_include_directories(${TESTNAME} PUBLIC ${GPU_BENCHMARK_INCLUDE_DIR})
+
+    target_link_libraries(${TESTNAME} cpu-benchmark-lib)
+    target_include_directories(${TESTNAME} PUBLIC ${CPU_BENCHMARK_INCLUDE_DIR})
 endmacro()
 
 package_add_cpu_test(mkl_test mkl_test.cpp)
@@ -38,4 +41,5 @@ package_add_cpu_test(opt3_test opt3_test.cpp)
 
 if(CMAKE_CUDA_COMPILER)
     package_add_gpu_test(cublas_test cublas_test.cpp)
+    package_add_gpu_test(naiveGPU_test naiveGPU_test.cpp)
 endif()
