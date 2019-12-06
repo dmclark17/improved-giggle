@@ -48,7 +48,7 @@ void generate_matrix_prod(float* mat, unsigned int ld, unsigned int n) {
 void generate_matrix_diff(float* mat, unsigned int ld, unsigned int n) {
     for (unsigned int i = 0; i < n; i++) {
         for (unsigned int j = 0; j < n; j++) {
-            mat[i * ld + j] = i - j;
+            mat[i * ld + j] = ((int) i) - ((int)j);
         }
     }
 }
