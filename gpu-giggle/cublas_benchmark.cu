@@ -4,6 +4,7 @@
 #include "cublas_v2.h"
 
 #include "data_manager.h"
+#include "gpu_util.h"
 
 #include "gpu_benchmark.h"
 
@@ -21,7 +22,6 @@ void cublass_gemm_execute(GemmRun* run) {
 
     cublasStatus_t stat;
     cublasHandle_t handle;
-    cudaError_t err;
 
     stat = cublasCreate(&handle);
     if (stat != CUBLAS_STATUS_SUCCESS) {
@@ -29,26 +29,7 @@ void cublass_gemm_execute(GemmRun* run) {
         return;
     }
 
-    cudaMallocPitch(&cuda_A, &pitch_A, run->k * sizeof(float), run->m);
-    cudaMallocPitch(&cuda_B, &pitch_B, run->n * sizeof(float), run->k);
-    cudaMallocPitch(&cuda_C, &pitch_C, run->n * sizeof(float), run->m);
-    if ((err = cudaGetLastError()) != cudaSuccess) {
-        printf("%s\n", cudaGetErrorString(err));
-        return;
-    }
-
-    stat = cublasSetMatrix(run->m, run->k, sizeof(float), run->a, run->lda, cuda_A, pitch_A / sizeof(float));
-    if (stat != CUBLAS_STATUS_SUCCESS) {
-        printf ("Set A matrix failed\n");
-        return;
-    }
-
-    stat = cublasSetMatrix(run->k, run->n, sizeof(float), run->b, run->ldb, cuda_B, pitch_B / sizeof(float));
-    if (stat != CUBLAS_STATUS_SUCCESS) {
-        printf ("Set B matrix failed\n");
-        return;
-    }
-
+    init_cuda_matrices(run, &pitch_A, &pitch_B, &pitch_C, &cuda_A, &cuda_B, &cuda_C);
 
     stat = cublasSgemm(handle, transa, transb,
                        run->m, run->n, run->k,
@@ -61,15 +42,5 @@ void cublass_gemm_execute(GemmRun* run) {
         return;
     }
 
-    cublasGetMatrix(run->m, run->n, sizeof(float), cuda_C, pitch_C / sizeof(float),
-                    run->c, run->ldc);
-    if (stat != CUBLAS_STATUS_SUCCESS) {
-        printf ("Get matrix failed\n");
-        return;
-    }
-
-    cudaFree(cuda_A);
-    cudaFree(cuda_B);
-    cudaFree(cuda_C);
-    // std::cout << "Pitch " << pitch_A << " size " << run->k * sizeof(float) << std::endl;
+    deinit_cuda_matrices(run, pitch_C, cuda_A, cuda_B, cuda_C);
 }
