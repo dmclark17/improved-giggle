@@ -25,7 +25,7 @@ TEST(MKLTests, ThreeByThree) {
 
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < run->n; j++) {
-            ASSERT_TRUE(run->c[i * run->ldc + j] == expected[i * run->ldc + j]);
+            ASSERT_NEAR(run->c[i * run->ldc + j], expected[i * run->ldc + j], 1e-3);
         }
     }
 
