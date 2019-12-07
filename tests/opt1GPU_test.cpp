@@ -24,7 +24,7 @@ TEST(NaiveGPUTests, BigTest) {
     run_mkl->b = run->b;
 
     cublass_gemm_execute(run_mkl);
-    naiveGPU_gemm_execute(run);
+    opt1GPU_gemm_execute(run);
 
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < run->n; j++) {

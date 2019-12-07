@@ -19,6 +19,8 @@ Make sure the `IMPROVED_GIGGLE_ROOT` environment variable is set to the root of 
 ### Cannon Setup
 
 ```
+srun --pty -p fas_gpu -t 0-06:00 --mem 8000 --gres=gpu:1 /bin/bash
+
 module load cmake/3.12.1-fasrc01
 module load gflags/2.1.2-fasrc01
 module load intel/19.0.5-fasrc01

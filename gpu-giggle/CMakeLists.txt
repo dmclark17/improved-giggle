@@ -1,6 +1,7 @@
 add_library(gpu-benchmark-lib STATIC
     cublas_benchmark.cu
     naive_benchmark.cu
+    opt1_benchmark.cu
     gpu_benchmark.h
     gpu_util.cu
     gpu_util.h

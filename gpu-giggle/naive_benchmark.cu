@@ -9,7 +9,7 @@
 #define BLOCK_SIZE 32
 
 __global__
-void MatMulKernel(size_t pitch_A, size_t pitch_B, size_t pitch_C,
+void naiveMulKernel(size_t pitch_A, size_t pitch_B, size_t pitch_C,
                   float* cuda_A, float* cuda_B, float* cuda_C,
                   int k);
 
@@ -29,7 +29,7 @@ void naiveGPU_gemm_execute(GemmRun* run) {
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
     dim3 dimGrid(run->n / dimBlock.x, run->m / dimBlock.y);
 
-    MatMulKernel<<<dimGrid, dimBlock>>>(cuda_lda, cuda_ldb, cuda_ldc,
+    naiveMulKernel<<<dimGrid, dimBlock>>>(cuda_lda, cuda_ldb, cuda_ldc,
                                         cuda_A, cuda_B, cuda_C, run->k);
     cudaDeviceSynchronize();
 
@@ -37,9 +37,9 @@ void naiveGPU_gemm_execute(GemmRun* run) {
 }
 
 
-__global__ void MatMulKernel(size_t pitch_A, size_t pitch_B, size_t pitch_C,
-                             float* cuda_A, float* cuda_B, float* cuda_C,
-                             int k) {
+__global__ void naiveMulKernel(size_t pitch_A, size_t pitch_B, size_t pitch_C,
+                               float* cuda_A, float* cuda_B, float* cuda_C,
+                               int k) {
     /*
      Taken from the CUDA Developer Documentation. Section 3.2.3 Shared Memory
     */
