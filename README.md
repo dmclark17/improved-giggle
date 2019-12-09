@@ -76,3 +76,14 @@ MUX                                                        %                    
 	PerfMon Event Multiplexing accuracy indicator
 warning: 6 results not referenced: 62 65 66 82 83 84
 ```
+
+
+### mkl
+
+```
+RET            Retiring                % Slots                  77.71
+RET            Retiring.Base           % Slots                  76.87
+RET            Retiring.Base.FP_Arith  % Uops                   81.34  <==
+	This metric represents overall arithmetic floating-point
+	(FP) uops fraction the CPU has executed (retired)
+```
