@@ -77,6 +77,20 @@ MUX                                                        %                    
 warning: 6 results not referenced: 62 65 66 82 83 84
 ```
 
+### Opt3
+
+```
+BE             Backend_Bound                               % Slots                  28.59
+BE/Core        Backend_Bound.Core_Bound                    % Slots                  19.97
+BE/Core        Backend_Bound.Core_Bound.Ports_Utilization  % Clocks                 31.61  <==
+	This metric estimates fraction of cycles the CPU performance
+	was potentially limited due to Core computation issues (non
+	divider-related)...
+MUX                                                        %                         5.15
+	PerfMon Event Multiplexing accuracy indicator
+
+```
+
 
 ### mkl
 
