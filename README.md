@@ -76,3 +76,28 @@ MUX                                                        %                    
 	PerfMon Event Multiplexing accuracy indicator
 warning: 6 results not referenced: 62 65 66 82 83 84
 ```
+
+### Opt3
+
+```
+BE             Backend_Bound                               % Slots                  28.59
+BE/Core        Backend_Bound.Core_Bound                    % Slots                  19.97
+BE/Core        Backend_Bound.Core_Bound.Ports_Utilization  % Clocks                 31.61  <==
+	This metric estimates fraction of cycles the CPU performance
+	was potentially limited due to Core computation issues (non
+	divider-related)...
+MUX                                                        %                         5.15
+	PerfMon Event Multiplexing accuracy indicator
+
+```
+
+
+### mkl
+
+```
+RET            Retiring                % Slots                  77.71
+RET            Retiring.Base           % Slots                  76.87
+RET            Retiring.Base.FP_Arith  % Uops                   81.34  <==
+	This metric represents overall arithmetic floating-point
+	(FP) uops fraction the CPU has executed (retired)
+```
