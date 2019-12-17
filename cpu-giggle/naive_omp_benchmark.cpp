@@ -7,9 +7,11 @@
 
 #include "cpu_benchmark.h"
 
+#define NUM_THREADS 4
+
 
 void naiveOMP_CPU_gemm_execute(GemmRun* run) {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(NUM_THREADS)
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < run->n; j++) {
             float dot_prod = 0;

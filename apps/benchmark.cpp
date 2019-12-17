@@ -117,6 +117,15 @@ int main(int argc, char *argv[]) {
         std::cout << "Running naiveOmpCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = naiveOMP_CPU_gemm_execute;
 
+    } else if (FLAGS_benchmark.compare("opt1OmpCPU") == 0) {
+        std::cout << "Running opt1OmpCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        #ifdef __AVX512F__
+        std::cout << "Using AVX-512F" << std::endl;
+        #else
+        std::cout << "Using AVXF" << std::endl;
+        #endif
+        gemm_execute = opt1OMP_CPU_gemm_execute;
+
     } else {
         std::cout << "Benchmark " << FLAGS_benchmark << " not supported" << std::endl;
         return 1;

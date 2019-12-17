@@ -38,5 +38,6 @@ void opt3CPU_gemm_execute(GemmRun* run);
 
 
 void naiveOMP_CPU_gemm_execute(GemmRun* run);
+void opt1OMP_CPU_gemm_execute(GemmRun* run);
 
 #endif /* end of include guard: _IGIGGLE_MKL_H_ */
