@@ -4,6 +4,7 @@ add_library(cpu-benchmark-lib STATIC
     opt2_benchmark.cpp
     opt1_benchmark.cpp
     naive_benchmark.cpp
+    naive_omp_benchmark.cpp
     cpu_benchmark.h
 )
 

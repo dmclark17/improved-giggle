@@ -33,3 +33,5 @@
 
 # Project
 build/*
+results/*
+.DS_Store

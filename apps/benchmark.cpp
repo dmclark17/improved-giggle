@@ -113,6 +113,10 @@ int main(int argc, char *argv[]) {
         #endif
         gemm_execute = opt3CPU_gemm_execute;
 
+    } else if (FLAGS_benchmark.compare("naiveOmpCPU") == 0) {
+        std::cout << "Running naiveOmpCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        gemm_execute = naiveOMP_CPU_gemm_execute;
+
     } else {
         std::cout << "Benchmark " << FLAGS_benchmark << " not supported" << std::endl;
         return 1;

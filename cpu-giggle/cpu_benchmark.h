@@ -36,4 +36,7 @@ inline void opt3CPU_gepb(GemmRun* run, unsigned int p, unsigned int j, float* a_
 inline void opt3CPU_gepp(GemmRun* run, unsigned int p, float* a_pack, float* b_pack, float* c_pack);
 void opt3CPU_gemm_execute(GemmRun* run);
 
+
+void naiveOMP_CPU_gemm_execute(GemmRun* run);
+
 #endif /* end of include guard: _IGIGGLE_MKL_H_ */
