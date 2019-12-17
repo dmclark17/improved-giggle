@@ -23,15 +23,22 @@ int allocate_run(GemmRun** run, unsigned int size) {
     (*run)->b = (float *)aligned_alloc( 64, (*run)->ldb * (*run)->k * sizeof(float) );
     (*run)->c = (float *)aligned_alloc( 64, (*run)->ldc * (*run)->m * sizeof(float) );
 
+    if ( (*run)->a == NULL || (*run)->b == NULL || (*run)->c == NULL ) {
+        printf("\nCan't allocate alligned memory arrays\n");
+        (*run)->a = (float *)malloc( (*run)->ldc * (*run)->m * sizeof(float) );
+        (*run)->b = (float *)malloc( (*run)->ldc * (*run)->m * sizeof(float) );
+        (*run)->c = (float *)malloc( (*run)->ldc * (*run)->m * sizeof(float) );
+    }
+
+    if ( (*run)->a == NULL || (*run)->b == NULL || (*run)->c == NULL ) {
+        printf("\nCan't allocate memory arrays\n");
+        return 1;
+    }
+
     for (unsigned int i = 0; i < (*run)->m; i++) {
         for (unsigned int j = 0; j < (*run)->n; j++) {
             (*run)->c[i * (*run)->ldc + j] = 0;
         }
-    }
-
-    if ( (*run)->a == NULL || (*run)->b == NULL || (*run)->c == NULL ) {
-        printf("\n Can't allocate memory arrays");
-        return 1;
     }
 
     return 0;

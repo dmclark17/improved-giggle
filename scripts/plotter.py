@@ -33,7 +33,7 @@ def plot_double_output(results_one, results_two):
 
     plt.subplot(1, 2, 1)
     for key in results_one:
-        plt.plot([x[0] for x in results[key]], [x[1] for x in results[key]],
+        plt.plot([x[0] for x in results_one[key]], [x[1] for x in results_one[key]],
                  label=key)
 
     plt.xlabel("Matrix Size")
@@ -49,7 +49,7 @@ def plot_double_output(results_one, results_two):
     plt.ylabel("Time (ms)")
     plt.legend()
 
-    plt.savefig("cpu_new.pdf")
+    plt.savefig("cpu_cluster.pdf")
 
 
 if __name__ == "__main__":
@@ -77,16 +77,19 @@ if __name__ == "__main__":
     #
     # plot_output(results)
 
+    results = parse_output("small_6130.txt", results={})
+    results = parse_output("small_8268.txt", results=results)
+    results = parse_output("small_k80.txt", results=results)
+    results = parse_output("small_v100.txt", results=results)
 
 
+    results_tiny = parse_output("tiny_6130.txt", results={})
+    results_tiny = parse_output("tiny_8268.txt", results=results_tiny)
+    results_tiny = parse_output("tiny_k80.txt", results=results_tiny)
+    results_tiny = parse_output("tiny_v100.txt", results=results_tiny)
 
-    results = parse_output("../build/naiveCPU_results.txt", results={})
-    results = parse_output("../build/opt1CPU_results.txt", results=results)
-    results = parse_output("../build/opt2CPU_results_short.txt", results=results)
 
-    results_two = parse_output("../build/mkl_one_results.txt", results={})
-    results_two = parse_output("../build/opt2CPU_results.txt", results=results_two)
-    results_two = parse_output("../build/opt3CPU_results.txt", results=results_two)
     print(results)
-    print(results_two)
-    plot_double_output(results, results_two)
+    print(results_tiny)
+
+    plot_double_output(results_tiny, results)
