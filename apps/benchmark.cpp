@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 
     } else if (FLAGS_benchmark.compare("opt1GPU") == 0) {
         #ifdef _IG_HASCUDA
-        std::cout << "Running opt2GPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        std::cout << "Running opt1GPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = opt1GPU_gemm_execute;
         #else
         std::cout << "CUDA compiler not found: gpu not supported" << std::endl;
@@ -73,6 +73,15 @@ int main(int argc, char *argv[]) {
         #ifdef _IG_HASCUDA
         std::cout << "Running opt2GPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = opt2GPU_gemm_execute;
+        #else
+        std::cout << "CUDA compiler not found: gpu not supported" << std::endl;
+        return 1;
+        #endif
+
+    } else if (FLAGS_benchmark.compare("opt3GPU") == 0) {
+        #ifdef _IG_HASCUDA
+        std::cout << "Running opt3GPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        gemm_execute = opt3GPU_gemm_execute;
         #else
         std::cout << "CUDA compiler not found: gpu not supported" << std::endl;
         return 1;

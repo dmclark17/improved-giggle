@@ -12,4 +12,6 @@ void opt1GPU_gemm_execute(GemmRun* run);
 
 void opt2GPU_gemm_execute(GemmRun* run);
 
+void opt3GPU_gemm_execute(GemmRun* run);
+
 #endif /* end of include guard: _IGIGGLE_CUBLAS_H_ */
