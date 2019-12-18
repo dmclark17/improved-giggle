@@ -7,9 +7,9 @@
 #include "gpu_benchmark.h"
 
 #define VECTOR_LENGTH 512
-#define M_BLOCK 16
+#define M_BLOCK 32
 #define K_BLOCK 32
-#define N_BLOCK 512
+#define N_BLOCK 128
 
 __global__
 void opt3MulKernel(size_t pitch_A, size_t pitch_B, size_t pitch_C,
@@ -50,10 +50,10 @@ __global__ void opt3MulKernel(size_t pitch_A, size_t pitch_B, size_t pitch_C,
     unsigned int C_block_offset = (blockIdx.y * M_BLOCK) * pitch_C + blockIdx.x * N_BLOCK;
 
 
-    float Cvalue[M_BLOCK];
+    float Cvalue[8];
 
-    #pragma unroll 16
-    for (unsigned int i = 0; i < M_BLOCK; i++) {
+    #pragma unroll 8
+    for (unsigned int i = 0; i < 8; i++) {
         Cvalue[i] = 0;
     }
 
@@ -61,8 +61,8 @@ __global__ void opt3MulKernel(size_t pitch_A, size_t pitch_B, size_t pitch_C,
         __shared__ float A_shared[M_BLOCK][K_BLOCK];
 
         // load the block from A
-        for (int j = 0; j < M_BLOCK; j += blockDim.y) {
-            A_shared[j + threadIdx.y][threadIdx.x] = cuda_A[A_block_offset + (block_idx * K_BLOCK) + ((threadIdx.y + j) * pitch_A) + threadIdx.x];
+        for (unsigned int i = 0; i < BLOCK_M / blockDim.y) {
+            A_shared[threadIdx.y + i][threadIdx.x] = cuda_A[A_block_offset + (block_idx * K_BLOCK) + ((threadIdx.y + i) * pitch_A) + threadIdx.x];
         }
         __syncthreads();
 
