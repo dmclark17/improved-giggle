@@ -1,5 +1,20 @@
 add_subdirectory("${IGIGGLE_SOURCE_DIR}/extern/googletest" "extern/googletest")
 
+add_library(igiggle-test-helper-lib STATIC
+    test_helper.cpp
+    test_helper.h
+)
+
+target_link_libraries(igiggle-test-helper-lib igiggle-helper-lib)
+target_include_directories(igiggle-test-helper-lib PUBLIC ${IGIGGLE_HELPER_INCLUDE_DIR})
+
+target_link_libraries(igiggle-test-helper-lib gtest gmock gtest_main)
+
+set_target_properties(igiggle-test-helper-lib PROPERTIES CXX_STANDARD 17)
+
+set(IGIGGLE_TEST_HELPER_INCLUDE_DIR "${IGIGGLE_SOURCE_DIR}/tests")
+
+
 macro(package_add_cpu_test TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
     target_link_libraries(${TESTNAME} gtest gmock gtest_main)
@@ -13,6 +28,9 @@ macro(package_add_cpu_test TESTNAME)
 
     target_link_libraries(${TESTNAME} cpu-benchmark-lib)
     target_include_directories(${TESTNAME} PUBLIC ${CPU_BENCHMARK_INCLUDE_DIR})
+
+    target_link_libraries(${TESTNAME} igiggle-test-helper-lib)
+    target_include_directories(${TESTNAME} PUBLIC ${IGIGGLE_TEST_HELPER_INCLUDE_DIR})
 endmacro()
 
 macro(package_add_gpu_test TESTNAME)
