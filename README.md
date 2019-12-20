@@ -5,6 +5,11 @@ Linear algebra benchmarking and implementations
 
 Make sure the `IMPROVED_GIGGLE_ROOT` environment variable is set to the root of the project
 
+
+macOS llvm for openMP:
+
+`cmake -DCMAKE_C_COMPILER="/usr/local/opt/llvm/bin/clang" -DCMAKE_CXX_COMPILER="/usr/local/opt/llvm/bin/clang++" ..`
+
 `set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")`
 
 `sudo sh -c 'echo -1 >/proc/sys/kernel/perf_event_paranoid'`
