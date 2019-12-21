@@ -42,6 +42,15 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
+    } else if (FLAGS_benchmark.compare("accelerate") == 0) {
+        #ifdef __APPLE__
+        std::cout << "Running naiveCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        gemm_execute = accelerate_gemm_execute;
+        #else
+        std::cout << "Accelerate not found: apple not supported" << std::endl;
+        return 1;
+        #endif
+
     } else if (FLAGS_benchmark.compare("cublas") == 0) {
         #ifdef _IG_HASCUDA
         std::cout << "Running cuBLAS Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;

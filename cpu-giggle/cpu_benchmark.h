@@ -6,6 +6,8 @@
 
 void mkl_gemm_execute(GemmRun* run);
 
+void accelerate_gemm_execute(GemmRun* run);
+
 void naiveCPU_gemm_execute(GemmRun* run);
 
 inline void opt1CPU_packA(GemmRun* run, unsigned int p, float* a_pack);
