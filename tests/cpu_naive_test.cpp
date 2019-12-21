@@ -1,7 +1,12 @@
 #include "data_manager.h"
 #include "cpu_benchmark.h"
+#include "test_helper.h"
 
 #include "gtest/gtest.h"
+
+#define MATRIX_SIZE 32
+#define THRESHOLD 1e-10
+
 
 TEST(NaiveTests, ThreeByThree) {
     GemmRun* run;
@@ -34,35 +39,26 @@ TEST(NaiveTests, ThreeByThree) {
     deallocate_run(run);
 }
 
-TEST(NaiveTests, BigTest) {
-    GemmRun* run;
-    GemmRun* run_mkl;
-    allocate_run(&run, 512);
-    allocate_run(&run_mkl, 512);
 
-    generate_matrix_random(run->a, run->lda, run->m);
-    generate_matrix_random(run->b, run->ldb, run->k);
+#ifdef __APPLE__
+TEST_F(MatrixTest, RandomNaiveCPUAccelerate) {
+    MySetUp(MATRIX_SIZE, RANDOM);
 
-    // to free laters
-    float* temp_a = run_mkl->a;
-    float* temp_b = run_mkl->b;
+    naiveCPU_gemm_execute(run_truth);
+    accelerate_gemm_execute(run);
 
-    run_mkl->a = run->a;
-    run_mkl->b = run->b;
-
-    mkl_gemm_execute(run_mkl);
-    naiveCPU_gemm_execute(run);
-
-    for (unsigned int i = 0; i < run->m; i++) {
-        for (unsigned int j = 0; j < run->n; j++) {
-            ASSERT_NEAR(run->c[i * run->ldc + j], run_mkl->c[i * run->ldc + j],
-                        1e-3);
-        }
-    }
-
-    run_mkl->a = temp_a;
-    run_mkl->b = temp_b;
-
-    deallocate_run(run);
-    deallocate_run(run_mkl);
+    verify_correctness(THRESHOLD);
 }
+#endif
+
+
+#ifdef __APPLE__
+TEST_F(MatrixTest, FixedNaiveCPUAccelerate) {
+    MySetUp(MATRIX_SIZE, FIXED);
+
+    naiveCPU_gemm_execute(run_truth);
+    accelerate_gemm_execute(run);
+
+    verify_correctness(THRESHOLD);
+}
+#endif
