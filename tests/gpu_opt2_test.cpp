@@ -13,9 +13,12 @@ TEST(Opt2GPUTests, BigTest) {
     allocate_run(&run, 1024);
     allocate_run(&run_mkl, 1024);
 
-    generate_matrix_random(run->a, run->lda, run->m);
-    generate_matrix_random(run->b, run->ldb, run->k);
+    // generate_matrix_random(run->a, run->lda, run->m);
+    // generate_matrix_random(run->b, run->ldb, run->k);
 
+    generate_matrix_prod(run->a, run->lda, run->m);
+    generate_matrix_diff(run->b, run->ldb, run->k);
+    
     // to free laters
     float* temp_a = run_mkl->a;
     float* temp_b = run_mkl->b;
