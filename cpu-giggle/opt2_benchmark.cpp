@@ -19,20 +19,19 @@
 // #define MR 64
 // #define NR 1
 
-inline void opt2CPU_packA(GemmRun<float>* run, unsigned int p, float* a_pack);
-inline void opt2CPU_packB(GemmRun<float>* run, unsigned int p, int j, float* b_pack);
-inline void opt2CPU_unpackC(GemmRun<float>* run, unsigned int j, unsigned int i, float* c_pack);
-inline void opt2CPU_aux(float* a_pack, float* b_pack, float* c_pack);
-inline void opt2CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack);
-inline void opt2CPU_gepb(GemmRun<float>* run, unsigned int p, unsigned int j, float* a_pack, float* b_pack, float* c_pack);
-inline void opt2CPU_gepp(GemmRun<float>* run, unsigned int p, float* a_pack, float* b_pack, float* c_pack);
 
+template <typename T>
+inline void opt2CPU_packA(GemmRun<T>* run, unsigned int p, T* a_pack);
+/*
+  utility function for packing A
+  - Packs the A matrix into a panel of size m by k_c
+  - Within the packed array, the data should be in row major format
+*/
 
+template <>
 inline void opt2CPU_packA(GemmRun<float>* run, unsigned int p, float* a_pack) {
     /*
-      utility function for packing A
-      - Packs the A matrix into a panel of size m by k_c
-      - Within the packed array, the data should be in row major format
+    * floats
     */
     #ifdef __AVX512F__
     __m512 src;
@@ -55,14 +54,38 @@ inline void opt2CPU_packA(GemmRun<float>* run, unsigned int p, float* a_pack) {
     #endif
 }
 
+template <>
+inline void opt2CPU_packA(GemmRun<double>* run, unsigned int p, double* a_pack) {
+    /*
+    * doubles
+    */
+    #ifdef __AVX__
+    __m256 src;
+    for (unsigned int i = 0; i < run->m; i++) {
+        for (unsigned int j = 0; j < KC; j += 4) {
+            src = _mm256_load_pd(run->a + (p + run->lda * i + j));
+            _mm256_store_pd(a_pack + (i * KC + j), src);
+        }
+    }
+    #endif
+}
 
+
+
+template <typename T>
+inline void opt2CPU_packB(GemmRun<T>* run, unsigned int p, unsigned int j, T* b_pack);
+/*
+  utility function for packing B
+  - Packs B into a block of size n_c and k_c
+  - Within the packed array, the data should be in column major format
+  maybe this should be some sort of block form, but we can start with pure
+  column major format for now?
+*/
+
+template <>
 inline void opt2CPU_packB(GemmRun<float>* run, unsigned int p, unsigned int j, float* b_pack) {
     /*
-      utility function for packing B
-      - Packs B into a block of size n_c and k_c
-      - Within the packed array, the data should be in column major format
-      maybe this should be some sort of block form, but we can start with pure
-      column major format for now?
+    * Floats
     */
     unsigned int offset = run->ldb * p + j;
     #ifdef __AVX512F__
@@ -86,11 +109,36 @@ inline void opt2CPU_packB(GemmRun<float>* run, unsigned int p, unsigned int j, f
     #endif
 }
 
+template <>
+inline void opt2CPU_packB(GemmRun<double>* run, unsigned int p, unsigned int j, double* b_pack) {
+    /*
+    * Doubles
+    */
+    unsigned int offset = run->ldb * p + j;
+    #ifdef __AVX__
+    __m256 src;
+    for (unsigned int pack_i = 0; pack_i < KC; pack_i++) {
+        for (unsigned int pack_j = 0; pack_j < NC; pack_j += 4) {
+            src = _mm256_load_pd(run->b + offset + pack_i * run->ldb + pack_j);
+            _mm256_store_pd(b_pack + pack_i * NC + pack_j, src);
+        }
+    }
+    #endif
+}
 
+
+
+template <typename T>
+inline void opt2CPU_unpackC(GemmRun<T>* run, unsigned int j, unsigned int i, T* c_pack);
+/*
+  utility function for unpacking C
+  - Unpacks a m_r by n_c submatrix into C
+*/
+
+template <>
 inline void opt2CPU_unpackC(GemmRun<float>* run, unsigned int j, unsigned int i, float* c_pack) {
     /*
-      utility function for unpacking C
-      - Unpacks a m_r by n_c submatrix into C
+    * floats
     */
     unsigned int offset = i * run->ldc + j;
     #ifdef __AVX512F__
@@ -126,12 +174,43 @@ inline void opt2CPU_unpackC(GemmRun<float>* run, unsigned int j, unsigned int i,
     #endif
 }
 
+template <>
+inline void opt2CPU_unpackC(GemmRun<double>* run, unsigned int j, unsigned int i, double* c_pack) {
+    /*
+    * double
+    */
+    unsigned int offset = i * run->ldc + j;
+    #ifdef __AVX__
+    __m256 m_cpack, m_c, m_sum, zero_vec;
+    zero_vec = _mm256_setzero_pd();
+    for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
+        for (unsigned int pack_j = 0; pack_j < NC; pack_j += 4) {
+            m_cpack = _mm256_load_pd(c_pack + pack_i * NC + pack_j);
+            m_c = _mm256_load_pd(run->c + offset + pack_i * run->ldc + pack_j);
 
+            m_sum = _mm256_add_pd(m_cpack, m_c);
+
+            _mm256_store_pd(run->c + offset + pack_i * run->ldc + pack_j, m_sum);
+            _mm256_store_pd(c_pack + pack_i * NC + pack_j, zero_vec);
+        }
+    }
+    #endif
+}
+
+
+
+template <typename T>
+inline void opt2CPU_aux_simd(T* a_pack, T* b_pack, T* c_pack);
+/*
+  - a_pack should be in row major format
+  - b_pack should be in column major
+  - c_pack will be in row major?!
+*/
+
+template <>
 inline void opt2CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
     /*
-      - a_pack should be in row major format
-      - b_pack should be in column major
-      - c_pack will be in row major?!
+    * float
     */
     #ifdef __AVX512F__
     __m512 a, b, c;
@@ -166,8 +245,32 @@ inline void opt2CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
     #endif
 }
 
+template <>
+inline void opt2CPU_aux_simd(double* a_pack, double* b_pack, double* c_pack) {
+    /*
+    * double
+    */
+    #ifdef __AVX__
+    __m256 a, b, c;
+    for (unsigned int pack_z = 0; pack_z < KC; pack_z++) {
+        for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
+            // Load a and scatter
+            a = _mm256_broadcast_sd(a_pack + pack_i * KC + pack_z);
+            for (unsigned int pack_j = 0; pack_j < NC; pack_j += 4) {
+                b = _mm256_load_pd(b_pack + NC * pack_z + pack_j);
+                c = _mm256_load_pd(c_pack + pack_i * NC + pack_j);
+                c = _mm256_fmadd_pd(a, b, c);
+                _mm256_store_pd(c_pack + pack_i * NC + pack_j, c);
+            }
+        }
+    }
+    #endif
+}
 
-inline void opt2CPU_gepb(GemmRun<float>* run, unsigned int p, unsigned int j, float* a_pack, float* b_pack, float* c_pack) {
+
+
+template <typename T>
+inline void opt2CPU_gepb(GemmRun<T>* run, unsigned int p, unsigned int j, T* a_pack, T* b_pack, T* c_pack) {
     /*
       This should
       - pack B
@@ -181,7 +284,9 @@ inline void opt2CPU_gepb(GemmRun<float>* run, unsigned int p, unsigned int j, fl
 }
 
 
-inline void opt2CPU_gepp(GemmRun<float>* run, unsigned int p, float* a_pack, float* b_pack, float* c_pack) {
+
+template <typename T>
+inline void opt2CPU_gepp(GemmRun<T>* run, unsigned int p, T* a_pack, T* b_pack, T* c_pack) {
     /*
       This should
       - pack A: A is in row major format,
@@ -194,8 +299,12 @@ inline void opt2CPU_gepp(GemmRun<float>* run, unsigned int p, float* a_pack, flo
 }
 
 
+
 template <typename T>
-void opt2CPU_gemm_execute(GemmRun<T>* run) {
+void opt2CPU_gemm_execute(GemmRun<T>* run);
+
+template <>
+void opt2CPU_gemm_execute(GemmRun<float>* run) {
     /*
       This should call gepp iteration over panels. Panel A_p and B_p will
       make a contribution to all of C?
@@ -203,6 +312,7 @@ void opt2CPU_gemm_execute(GemmRun<T>* run) {
     float* a_pack = (float *)aligned_alloc( 64, KC * run->m * sizeof(float) );
     float* b_pack = (float *)aligned_alloc( 64, KC * NC * sizeof(float) );
     float* c_pack = (float *)aligned_alloc( 64, MR * NC * sizeof(float) );
+
     #ifdef __AVX512F__
     __m512 zero_vec = _mm512_setzero_ps();
     for (unsigned int i = 0; i < MR * NC; i += 16) {
@@ -226,4 +336,28 @@ void opt2CPU_gemm_execute(GemmRun<T>* run) {
     free(c_pack);
 }
 
-template void opt2CPU_gemm_execute<float>(GemmRun<float>*);
+template <>
+void opt2CPU_gemm_execute(GemmRun<double>* run) {
+    /*
+      This should call gepp iteration over panels. Panel A_p and B_p will
+      make a contribution to all of C?
+    */
+    double* a_pack = (double *)aligned_alloc( 64, KC * run->m * sizeof(double) );
+    double* b_pack = (double *)aligned_alloc( 64, KC * NC * sizeof(double) );
+    double* c_pack = (double *)aligned_alloc( 64, MR * NC * sizeof(double) );
+
+    #ifdef __AVX__
+    __m256 zero_vec = _mm256_setzero_pd();
+    for (unsigned int i = 0; i < MR * NC; i += 8) {
+        _mm256_store_pd(c_pack + i, zero_vec);
+    }
+    #endif
+
+    for (unsigned int p = 0; p < run->k; p += KC) {
+        opt2CPU_gepp(run, p, a_pack, b_pack, c_pack);
+    }
+
+    free(a_pack);
+    free(b_pack);
+    free(c_pack);
+}

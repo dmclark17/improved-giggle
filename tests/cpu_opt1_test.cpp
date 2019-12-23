@@ -10,7 +10,7 @@
 #define THRESHOLD 1e-10
 
 
-using MyTypes = ::testing::Types<float,double>;
+using MyTypes = ::testing::Types<double>;
 TYPED_TEST_SUITE(MatrixTest, MyTypes);
 
 TYPED_TEST(MatrixTest, RandomOpt1CPU) {

@@ -6,17 +6,17 @@
 
 #include "gtest/gtest.h"
 
-#define MATRIX_SIZE 512
+#define MATRIX_SIZE 1024
 #define THRESHOLD 1e-10
 
 
-using MyTypes = ::testing::Types<float>;
+using MyTypes = ::testing::Types<double>;
 TYPED_TEST_SUITE(MatrixTest, MyTypes);
 
 TYPED_TEST(MatrixTest, RandomOpt2CPU) {
     this->MySetUp(MATRIX_SIZE, RANDOM);
 
-    naiveCPU_gemm_execute(this->run_truth);
+    opt1CPU_gemm_execute(this->run_truth);
     opt2CPU_gemm_execute(this->run);
 
     this->verify_correctness(THRESHOLD);
@@ -26,7 +26,7 @@ TYPED_TEST(MatrixTest, RandomOpt2CPU) {
 TYPED_TEST(MatrixTest, FixedOpt2CPU) {
     this->MySetUp(MATRIX_SIZE, FIXED);
 
-    naiveCPU_gemm_execute(this->run_truth);
+    opt1CPU_gemm_execute(this->run_truth);
     opt2CPU_gemm_execute(this->run);
 
     this->verify_correctness(THRESHOLD);
