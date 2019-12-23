@@ -7,24 +7,49 @@
 #include "gtest/gtest.h"
 
 #define MATRIX_SIZE 2048
-#define THRESHOLD 1e-3
+#define THRESHOLD 1e-10
 
 
-TEST_F(MatrixTest, RandomOpt1OMPCPU) {
-    MySetUp(MATRIX_SIZE, RANDOM);
+using MyTypes = ::testing::Types<float>;
+TYPED_TEST_SUITE(MatrixTest, MyTypes);
 
-    opt3CPU_gemm_execute(run_truth);
-    opt1OMP_CPU_gemm_execute(run);
+TYPED_TEST(MatrixTest, RandomOpt1OMPCPU) {
+    this->MySetUp(MATRIX_SIZE, RANDOM);
 
-    verify_correctness(THRESHOLD);
+    opt3CPU_gemm_execute(this->run_truth);
+    opt1OMP_CPU_gemm_execute(this->run);
+
+    this->verify_correctness(THRESHOLD);
 }
 
 
-TEST_F(MatrixTest, FixedOpt1OMPCPU) {
-    MySetUp(MATRIX_SIZE, FIXED);
+TYPED_TEST(MatrixTest, FixedOpt1OMPCPU) {
+    this->MySetUp(MATRIX_SIZE, FIXED);
 
-    opt3CPU_gemm_execute(run_truth);
-    opt1OMP_CPU_gemm_execute(run);
+    opt3CPU_gemm_execute(this->run_truth);
+    opt1OMP_CPU_gemm_execute(this->run);
 
-    verify_correctness(THRESHOLD);
+    this->verify_correctness(THRESHOLD);
 }
+
+
+#ifdef __APPLE__
+TYPED_TEST(MatrixTest, RandomOpt1OMPCPUAccelerate) {
+    this->MySetUp(MATRIX_SIZE, RANDOM);
+
+    accelerate_gemm_execute(this->run_truth);
+    opt1OMP_CPU_gemm_execute(this->run);
+
+    this->verify_correctness(THRESHOLD);
+}
+
+
+TYPED_TEST(MatrixTest, FixedOpt1OMPCPUAccelerate) {
+    this->MySetUp(MATRIX_SIZE, FIXED);
+
+    accelerate_gemm_execute(this->run_truth);
+    opt1OMP_CPU_gemm_execute(this->run);
+
+    this->verify_correctness(THRESHOLD);
+}
+#endif

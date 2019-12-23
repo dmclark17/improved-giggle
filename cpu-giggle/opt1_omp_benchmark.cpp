@@ -15,7 +15,7 @@ template <typename T>
 void opt1OMP_CPU_gemm_execute(GemmRun<T>* run) {
     #pragma omp parallel for num_threads(NUM_THREADS)
     for (unsigned int i = 0; i < 4; i++) {
-        GemmRun<float> subrun;
+        GemmRun<T> subrun;
         subrun.alpha = run->alpha;
         subrun.beta = run->beta;
 

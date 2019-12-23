@@ -42,10 +42,8 @@ TYPED_TEST(MatrixTest, AccelerateRandomOpt1CPU) {
 
     this->verify_correctness(THRESHOLD);
 }
-#endif
 
 
-#ifdef __APPLE__
 TYPED_TEST(MatrixTest, AccelerateFixedOpt1CPU) {
     this->MySetUp(MATRIX_SIZE, FIXED);
 
