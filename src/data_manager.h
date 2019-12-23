@@ -20,11 +20,14 @@ struct GemmRun {
 template <typename T>
 int allocate_run(GemmRun<T>** run, unsigned int size);
 
-void generate_matrix_prod(float* mat, unsigned int ld, unsigned int n);
+template <typename T>
+void generate_matrix_prod(T* mat, unsigned int ld, unsigned int n);
 
-void generate_matrix_diff(float* mat, unsigned int ld, unsigned int n);
+template <typename T>
+void generate_matrix_diff(T* mat, unsigned int ld, unsigned int n);
 
-void generate_matrix_random(float* mat, unsigned int ld, unsigned int n);
+template <typename T>
+void generate_matrix_random(T* mat, unsigned int ld, unsigned int n);
 
 void print_matrix(float* mat, unsigned int ld, unsigned int n);
 

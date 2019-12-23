@@ -146,8 +146,8 @@ int main(int argc, char *argv[]) {
         for (unsigned int i = 0; i < FLAGS_number; i++) {
             GemmRun<float>* run;
             allocate_run<float>(&run, size);
-            generate_matrix_random(run->a, run->lda, run->m);
-            generate_matrix_random(run->b, run->ldb, run->k);
+            generate_matrix_random<float>(run->a, run->lda, run->m);
+            generate_matrix_random<float>(run->b, run->ldb, run->k);
 
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
             gemm_execute(run);

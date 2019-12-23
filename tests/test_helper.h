@@ -10,17 +10,17 @@ typedef enum MatrixType {
     FIXED,
 } MatrixType;
 
-
+template <class T>
 class MatrixTest : public ::testing::Test {
   protected:
     void MySetUp(unsigned int matrix_size, MatrixType matrix_type);
     void TearDown() override;
-    void verify_correctness(float threshold);
+    void verify_correctness(T threshold);
 
-    GemmRun<float>* run;
-    GemmRun<float>* run_truth;
-    float* temp_a;
-    float* temp_b;
+    GemmRun<T>* run;
+    GemmRun<T>* run_truth;
+    T* temp_a;
+    T* temp_b;
 };
 
 #endif /* end of include guard: _IGIGGLE_TEST_HELPER_H_ */

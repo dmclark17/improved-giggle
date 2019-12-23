@@ -4,9 +4,12 @@
 
 #include "gtest/gtest.h"
 
-#define MATRIX_SIZE 32
+#define MATRIX_SIZE 256
 #define THRESHOLD 1e-10
 
+
+using MyTypes = ::testing::Types<float,double>;
+TYPED_TEST_SUITE(MatrixTest, MyTypes);
 
 TEST(NaiveTests, ThreeByThree) {
     GemmRun<float>* run;
@@ -41,24 +44,22 @@ TEST(NaiveTests, ThreeByThree) {
 
 
 #ifdef __APPLE__
-TEST_F(MatrixTest, RandomNaiveCPUAccelerate) {
-    MySetUp(MATRIX_SIZE, RANDOM);
+TYPED_TEST(MatrixTest, RandomNaiveCPUAccelerate) {
+    this->MySetUp(MATRIX_SIZE, RANDOM);
 
-    naiveCPU_gemm_execute(run_truth);
-    accelerate_gemm_execute(run);
+    naiveCPU_gemm_execute(this->run_truth);
+    accelerate_gemm_execute(this->run);
 
-    verify_correctness(THRESHOLD);
+    this->verify_correctness(THRESHOLD);
 }
-#endif
 
 
-#ifdef __APPLE__
-TEST_F(MatrixTest, FixedNaiveCPUAccelerate) {
-    MySetUp(MATRIX_SIZE, FIXED);
+TYPED_TEST(MatrixTest, FixedNaiveCPUAccelerate) {
+    this->MySetUp(MATRIX_SIZE, FIXED);
 
-    naiveCPU_gemm_execute(run_truth);
-    accelerate_gemm_execute(run);
+    naiveCPU_gemm_execute(this->run_truth);
+    accelerate_gemm_execute(this->run);
 
-    verify_correctness(THRESHOLD);
+    this->verify_correctness(THRESHOLD);
 }
 #endif

@@ -24,3 +24,4 @@ void naiveCPU_gemm_execute(GemmRun<T>* run) {
 
 
 template void naiveCPU_gemm_execute<float>(GemmRun<float>*);
+template void naiveCPU_gemm_execute<double>(GemmRun<double>*);

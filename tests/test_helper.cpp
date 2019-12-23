@@ -3,7 +3,9 @@
 
 #include "test_helper.h"
 
-void MatrixTest::MySetUp(unsigned int matrix_size, MatrixType matrix_type) {
+
+template <class T>
+void MatrixTest<T>::MySetUp(unsigned int matrix_size, MatrixType matrix_type) {
     allocate_run(&run, matrix_size);
     allocate_run(&run_truth, matrix_size);
 
@@ -24,7 +26,8 @@ void MatrixTest::MySetUp(unsigned int matrix_size, MatrixType matrix_type) {
 }
 
 
-void MatrixTest::TearDown() {
+template <class T>
+void MatrixTest<T>::TearDown() {
     run_truth->a = temp_a;
     run_truth->b = temp_b;
 
@@ -33,7 +36,8 @@ void MatrixTest::TearDown() {
 }
 
 
-void MatrixTest::verify_correctness(float threshold) {
+template <class T>
+void MatrixTest<T>::verify_correctness(T threshold) {
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < run->n; j++) {
             ASSERT_NEAR(run->c[i * run->ldc + j],
@@ -42,3 +46,6 @@ void MatrixTest::verify_correctness(float threshold) {
         }
     }
 }
+
+template class MatrixTest<float>;
+template class MatrixTest<double>;

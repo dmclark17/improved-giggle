@@ -45,26 +45,29 @@ int allocate_run(GemmRun<T>** run, unsigned int size) {
     return 0;
 }
 
-void generate_matrix_prod(float* mat, unsigned int ld, unsigned int n) {
+template <typename T>
+void generate_matrix_prod(T* mat, unsigned int ld, unsigned int n) {
     for (unsigned int i = 0; i < n; i++) {
         for (unsigned int j = 0; j < n; j++) {
-            mat[i * ld + j] = ((float) i) * ((float) j);
+            mat[i * ld + j] = ((T) i) * ((T) j);
         }
     }
 }
 
-void generate_matrix_diff(float* mat, unsigned int ld, unsigned int n) {
+template <typename T>
+void generate_matrix_diff(T* mat, unsigned int ld, unsigned int n) {
     for (unsigned int i = 0; i < n; i++) {
         for (unsigned int j = 0; j < n; j++) {
-            mat[i * ld + j] = ((float) i) - ((float) j);
+            mat[i * ld + j] = ((T) i) - ((T) j);
         }
     }
 }
 
-void generate_matrix_random(float* mat, unsigned int ld, unsigned int n) {
+template <typename T>
+void generate_matrix_random(T* mat, unsigned int ld, unsigned int n) {
     for (unsigned int i = 0; i < n; i++) {
         for (unsigned int j = 0; j < n; j++) {
-            mat[i * ld + j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            mat[i * ld + j] = static_cast <T> (rand()) / static_cast <T> (RAND_MAX);
         }
     }
 }
@@ -98,4 +101,16 @@ void deallocate_run(GemmRun<T>* run) {
 
 
 template int allocate_run<float>(GemmRun<float>**, unsigned int);
+template int allocate_run<double>(GemmRun<double>**, unsigned int);
+
+template void generate_matrix_prod<float>(float*, unsigned int, unsigned int);
+template void generate_matrix_prod<double>(double*, unsigned int, unsigned int);
+
+template void generate_matrix_diff<float>(float*, unsigned int, unsigned int);
+template void generate_matrix_diff<double>(double*, unsigned int, unsigned int);
+
+template void generate_matrix_random<float>(float*, unsigned int, unsigned int);
+template void generate_matrix_random<double>(double*, unsigned int, unsigned int);
+
 template void deallocate_run<float>(GemmRun<float>* run);
+template void deallocate_run<double>(GemmRun<double>* run);
