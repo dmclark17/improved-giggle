@@ -53,7 +53,7 @@ endmacro()
 
 #package_add_cpu_test(cpu_mkl_test cpu_mkl_test.cpp)
 package_add_cpu_test(cpu_naive_test cpu_naive_test.cpp)
-#package_add_cpu_test(cpu_opt1_test cpu_opt1_test.cpp)
+package_add_cpu_test(cpu_opt1_test cpu_opt1_test.cpp)
 #package_add_cpu_test(cpu_opt2_test cpu_opt2_test.cpp)
 #package_add_cpu_test(cpu_opt3_test cpu_opt3_test.cpp)
 #package_add_cpu_test(cpu_omp_naive_test cpu_omp_naive_test.cpp)
