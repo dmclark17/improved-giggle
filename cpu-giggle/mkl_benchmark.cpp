@@ -9,7 +9,8 @@
 
 #include "cpu_benchmark.h"
 
-void mkl_gemm_execute(GemmRun* run) {
+template <typename T>
+void mkl_gemm_execute(GemmRun<T>* run) {
 #ifdef MKL_ILP64
     mkl_set_num_threads(4);
     CBLAS_LAYOUT layout;
@@ -30,3 +31,5 @@ void mkl_gemm_execute(GemmRun* run) {
     printf("MKL not supported\n");
 #endif
 }
+
+template void mkl_gemm_execute<float>(GemmRun<float>*);

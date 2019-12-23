@@ -4,8 +4,9 @@
 #include "data_manager.h"
 
 
-int allocate_run(GemmRun** run, unsigned int size) {
-    (*run) = new GemmRun;
+template <typename T>
+int allocate_run(GemmRun<T>** run, unsigned int size) {
+    (*run) = new GemmRun<T>;
 
     (*run)->m = size;
     (*run)->n = size;
@@ -19,15 +20,15 @@ int allocate_run(GemmRun** run, unsigned int size) {
     (*run)->alpha = 1.0;
     (*run)->beta = 0.0;
 
-    (*run)->a = (float *)aligned_alloc( 64, (*run)->lda * (*run)->m * sizeof(float) );
-    (*run)->b = (float *)aligned_alloc( 64, (*run)->ldb * (*run)->k * sizeof(float) );
-    (*run)->c = (float *)aligned_alloc( 64, (*run)->ldc * (*run)->m * sizeof(float) );
+    (*run)->a = (T *) aligned_alloc( 64, (*run)->lda * (*run)->m * sizeof(T) );
+    (*run)->b = (T *) aligned_alloc( 64, (*run)->ldb * (*run)->k * sizeof(T) );
+    (*run)->c = (T *) aligned_alloc( 64, (*run)->ldc * (*run)->m * sizeof(T) );
 
     if ( (*run)->a == NULL || (*run)->b == NULL || (*run)->c == NULL ) {
         printf("\nCan't allocate alligned memory arrays\n");
-        (*run)->a = (float *)malloc( (*run)->ldc * (*run)->m * sizeof(float) );
-        (*run)->b = (float *)malloc( (*run)->ldc * (*run)->m * sizeof(float) );
-        (*run)->c = (float *)malloc( (*run)->ldc * (*run)->m * sizeof(float) );
+        (*run)->a = (T *)malloc( (*run)->ldc * (*run)->m * sizeof(T) );
+        (*run)->b = (T *)malloc( (*run)->ldc * (*run)->m * sizeof(T) );
+        (*run)->c = (T *)malloc( (*run)->ldc * (*run)->m * sizeof(T) );
     }
 
     if ( (*run)->a == NULL || (*run)->b == NULL || (*run)->c == NULL ) {
@@ -47,7 +48,7 @@ int allocate_run(GemmRun** run, unsigned int size) {
 void generate_matrix_prod(float* mat, unsigned int ld, unsigned int n) {
     for (unsigned int i = 0; i < n; i++) {
         for (unsigned int j = 0; j < n; j++) {
-            mat[i * ld + j] = ((float) i) * j;
+            mat[i * ld + j] = ((float) i) * ((float) j);
         }
     }
 }
@@ -55,7 +56,7 @@ void generate_matrix_prod(float* mat, unsigned int ld, unsigned int n) {
 void generate_matrix_diff(float* mat, unsigned int ld, unsigned int n) {
     for (unsigned int i = 0; i < n; i++) {
         for (unsigned int j = 0; j < n; j++) {
-            mat[i * ld + j] = ((int) i) - ((int)j);
+            mat[i * ld + j] = ((float) i) - ((float) j);
         }
     }
 }
@@ -86,10 +87,15 @@ void print_panel(float* mat, unsigned int ld, unsigned int m, unsigned int n) {
     }
 }
 
-void deallocate_run(GemmRun* run) {
+template <typename T>
+void deallocate_run(GemmRun<T>* run) {
     free(run->a);
     free(run->b);
     free(run->c);
 
     delete run;
 }
+
+
+template int allocate_run<float>(GemmRun<float>**, unsigned int);
+template void deallocate_run<float>(GemmRun<float>* run);

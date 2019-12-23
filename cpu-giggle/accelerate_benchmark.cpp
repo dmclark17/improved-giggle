@@ -9,7 +9,8 @@
 
 #include "cpu_benchmark.h"
 
-void accelerate_gemm_execute(GemmRun* run) {
+template <typename T>
+void accelerate_gemm_execute(GemmRun<T>* run) {
 #ifdef __APPLE__
     CBLAS_ORDER layout;
     CBLAS_TRANSPOSE transa, transb;
@@ -28,3 +29,5 @@ void accelerate_gemm_execute(GemmRun* run) {
     (void) run;
 #endif
 }
+
+template void accelerate_gemm_execute<float>(GemmRun<float>*);

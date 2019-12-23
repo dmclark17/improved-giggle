@@ -7,10 +7,11 @@
 
 #include "cpu_benchmark.h"
 
-#define NUM_THREADS 4
+#define NUM_THREADS 2
 
 
-void naiveOMP_CPU_gemm_execute(GemmRun* run) {
+template <typename T>
+void naiveOMP_CPU_gemm_execute(GemmRun<T>* run) {
     #pragma omp parallel for num_threads(NUM_THREADS)
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < run->n; j++) {
@@ -25,3 +26,5 @@ void naiveOMP_CPU_gemm_execute(GemmRun* run) {
         }
     }
 }
+
+template void naiveOMP_CPU_gemm_execute<float>(GemmRun<float>*);

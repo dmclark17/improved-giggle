@@ -31,12 +31,12 @@ int main(int argc, char *argv[]) {
     }
     matrix_sizes.push_back(std::stoi(remain));
 
-    void (*gemm_execute)(GemmRun*);
+    void (*gemm_execute)(GemmRun<float>*);
 
     if (FLAGS_benchmark.compare("mkl") == 0) {
         #ifdef _IG_HASMKL
         std::cout << "Running MKL Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
-        gemm_execute = mkl_gemm_execute;
+        gemm_execute = mkl_gemm_execute<float>;
         #else
         std::cout << "MKL not found: mkl not supported" << std::endl;
         return 1;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     } else if (FLAGS_benchmark.compare("accelerate") == 0) {
         #ifdef __APPLE__
         std::cout << "Running naiveCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
-        gemm_execute = accelerate_gemm_execute;
+        gemm_execute = accelerate_gemm_execute<float>;
         #else
         std::cout << "Accelerate not found: apple not supported" << std::endl;
         return 1;
@@ -98,11 +98,11 @@ int main(int argc, char *argv[]) {
 
     } else if (FLAGS_benchmark.compare("naiveCPU") == 0) {
         std::cout << "Running naiveCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
-        gemm_execute = naiveCPU_gemm_execute;
+        gemm_execute = naiveCPU_gemm_execute<float>;
 
     } else if (FLAGS_benchmark.compare("opt1CPU") == 0) {
         std::cout << "Running opt1CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
-        gemm_execute = opt1CPU_gemm_execute;
+        gemm_execute = opt1CPU_gemm_execute<float>;
 
     } else if (FLAGS_benchmark.compare("opt2CPU") == 0) {
         std::cout << "Running opt2CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
         #else
         std::cout << "Using AVXF" << std::endl;
         #endif
-        gemm_execute = opt2CPU_gemm_execute;
+        gemm_execute = opt2CPU_gemm_execute<float>;
 
     } else if (FLAGS_benchmark.compare("opt3CPU") == 0) {
         std::cout << "Running opt3CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
@@ -120,11 +120,11 @@ int main(int argc, char *argv[]) {
         #else
         std::cout << "Using AVXF" << std::endl;
         #endif
-        gemm_execute = opt3CPU_gemm_execute;
+        gemm_execute = opt3CPU_gemm_execute<float>;
 
     } else if (FLAGS_benchmark.compare("naiveOmpCPU") == 0) {
         std::cout << "Running naiveOmpCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
-        gemm_execute = naiveOMP_CPU_gemm_execute;
+        gemm_execute = naiveOMP_CPU_gemm_execute<float>;
 
     } else if (FLAGS_benchmark.compare("opt1OmpCPU") == 0) {
         std::cout << "Running opt1OmpCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
         #else
         std::cout << "Using AVXF" << std::endl;
         #endif
-        gemm_execute = opt1OMP_CPU_gemm_execute;
+        gemm_execute = opt1OMP_CPU_gemm_execute<float>;
 
     } else {
         std::cout << "Benchmark " << FLAGS_benchmark << " not supported" << std::endl;
@@ -144,8 +144,8 @@ int main(int argc, char *argv[]) {
     for (int size : matrix_sizes) {
         double duration = 0;
         for (unsigned int i = 0; i < FLAGS_number; i++) {
-            GemmRun* run;
-            allocate_run(&run, size);
+            GemmRun<float>* run;
+            allocate_run<float>(&run, size);
             generate_matrix_random(run->a, run->lda, run->m);
             generate_matrix_random(run->b, run->ldb, run->k);
 

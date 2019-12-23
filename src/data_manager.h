@@ -1,21 +1,24 @@
 #ifndef _IGIGGLE_DM_H_
 #define _IGIGGLE_DM_H_
 
-typedef struct GemmRun {
+
+template <typename T>
+struct GemmRun {
     unsigned int m;
     unsigned int n;
     unsigned int k;
-    float* a;
-    float* b;
-    float* c;
+    T* a;
+    T* b;
+    T* c;
     unsigned int lda;
     unsigned int ldb;
     unsigned int ldc;
-    float alpha;
-    float beta;
-} GemmRun;
+    T alpha;
+    T beta;
+};
 
-int allocate_run(GemmRun** run, unsigned int size);
+template <typename T>
+int allocate_run(GemmRun<T>** run, unsigned int size);
 
 void generate_matrix_prod(float* mat, unsigned int ld, unsigned int n);
 
@@ -27,6 +30,7 @@ void print_matrix(float* mat, unsigned int ld, unsigned int n);
 
 void print_panel(float* mat, unsigned int ld, unsigned int m, unsigned int n);
 
-void deallocate_run(GemmRun* run);
+template <typename T>
+void deallocate_run(GemmRun<T>* run);
 
 #endif /* end of include guard: _IGIGGLE_DM_H_ */

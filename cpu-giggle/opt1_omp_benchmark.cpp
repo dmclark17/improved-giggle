@@ -8,13 +8,14 @@
 
 #include "cpu_benchmark.h"
 
-#define NUM_THREADS 4
+#define NUM_THREADS 2
 
 
-void opt1OMP_CPU_gemm_execute(GemmRun* run) {
+template <typename T>
+void opt1OMP_CPU_gemm_execute(GemmRun<T>* run) {
     #pragma omp parallel for num_threads(NUM_THREADS)
     for (unsigned int i = 0; i < 4; i++) {
-        GemmRun subrun;
+        GemmRun<float> subrun;
         subrun.alpha = run->alpha;
         subrun.beta = run->beta;
 
@@ -36,3 +37,5 @@ void opt1OMP_CPU_gemm_execute(GemmRun* run) {
         opt3CPU_gemm_execute(&subrun);
     }
 }
+
+template void opt1OMP_CPU_gemm_execute<float>(GemmRun<float>*);

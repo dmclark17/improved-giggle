@@ -12,7 +12,15 @@
 #define NR 1
 
 
-inline void opt1CPU_packA(GemmRun* run, unsigned int p, float* a_pack) {
+inline void opt1CPU_packA(GemmRun<float>* run, unsigned int p, float* a_pack);
+inline void opt1CPU_packB(GemmRun<float>* run, unsigned int p, int j, float* b_pack);
+inline void opt1CPU_unpackC(GemmRun<float>* run, unsigned int j, unsigned int i, float* c_pack);
+inline void opt1CPU_aux(float* a_pack, float* b_pack, float* c_pack);
+inline void opt1CPU_gepb(GemmRun<float>* run, unsigned int p, unsigned int j, float* a_pack, float* b_pack, float* c_pack);
+inline void opt1CPU_gepp(GemmRun<float>* run, unsigned int p, float* a_pack, float* b_pack, float* c_pack);
+
+
+inline void opt1CPU_packA(GemmRun<float>* run, unsigned int p, float* a_pack) {
     /*
       utility function for packing A
       - Packs the A matrix into a panel of size m by k_c
@@ -27,7 +35,7 @@ inline void opt1CPU_packA(GemmRun* run, unsigned int p, float* a_pack) {
 }
 
 
-inline void opt1CPU_packB(GemmRun* run, unsigned int p, unsigned int j, float* b_pack) {
+inline void opt1CPU_packB(GemmRun<float>* run, unsigned int p, unsigned int j, float* b_pack) {
     /*
       utility function for packing B
       - Packs B into a block of size n_c and k_c
@@ -44,7 +52,7 @@ inline void opt1CPU_packB(GemmRun* run, unsigned int p, unsigned int j, float* b
 }
 
 
-inline void opt1CPU_unpackC(GemmRun* run, unsigned int j, unsigned int i, float* c_pack) {
+inline void opt1CPU_unpackC(GemmRun<float>* run, unsigned int j, unsigned int i, float* c_pack) {
     /*
       utility function for unpacking C
       - Unpacks a m_r by n_c submatrix into C
@@ -75,7 +83,7 @@ inline void opt1CPU_aux(float* a_pack, float* b_pack, float* c_pack) {
 }
 
 
-inline void opt1CPU_gepb(GemmRun* run, unsigned int p, unsigned int j, float* a_pack, float* b_pack, float* c_pack) {
+inline void opt1CPU_gepb(GemmRun<float>* run, unsigned int p, unsigned int j, float* a_pack, float* b_pack, float* c_pack) {
     /*
       This should
       - pack B
@@ -89,7 +97,7 @@ inline void opt1CPU_gepb(GemmRun* run, unsigned int p, unsigned int j, float* a_
 }
 
 
-inline void opt1CPU_gepp(GemmRun* run, unsigned int p, float* a_pack, float* b_pack, float* c_pack) {
+inline void opt1CPU_gepp(GemmRun<float>* run, unsigned int p, float* a_pack, float* b_pack, float* c_pack) {
     /*
       This should
       - pack A: A is in row major format,
@@ -102,7 +110,8 @@ inline void opt1CPU_gepp(GemmRun* run, unsigned int p, float* a_pack, float* b_p
 }
 
 
-void opt1CPU_gemm_execute(GemmRun* run) {
+template <typename T>
+void opt1CPU_gemm_execute(GemmRun<T>* run) {
     /*
       This should call gepp iteration over panels. Panel A_p and B_p will
       make a contribution to all of C?
@@ -119,3 +128,5 @@ void opt1CPU_gemm_execute(GemmRun* run) {
     free(b_pack);
     free(c_pack);
 }
+
+template void opt1CPU_gemm_execute<float>(GemmRun<float>*);

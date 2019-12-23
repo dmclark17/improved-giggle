@@ -17,8 +17,8 @@ class MatrixTest : public ::testing::Test {
     void TearDown() override;
     void verify_correctness(float threshold);
 
-    GemmRun* run;
-    GemmRun* run_truth;
+    GemmRun<float>* run;
+    GemmRun<float>* run_truth;
     float* temp_a;
     float* temp_b;
 };

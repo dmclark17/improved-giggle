@@ -6,8 +6,9 @@
 #include "cpu_benchmark.h"
 
 
-void naiveCPU_gemm_execute(GemmRun* run) {
-    float dot_prod = 0;
+template <typename T>
+void naiveCPU_gemm_execute(GemmRun<T>* run) {
+    T dot_prod = 0;
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < run->n; j++) {
             for (unsigned int z = 0; z < run->k; z++) {
@@ -20,3 +21,6 @@ void naiveCPU_gemm_execute(GemmRun* run) {
         }
     }
 }
+
+
+template void naiveCPU_gemm_execute<float>(GemmRun<float>*);
