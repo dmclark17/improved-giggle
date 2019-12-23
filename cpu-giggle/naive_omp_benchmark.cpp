@@ -15,7 +15,7 @@ void naiveOMP_CPU_gemm_execute(GemmRun<T>* run) {
     #pragma omp parallel for num_threads(NUM_THREADS)
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < run->n; j++) {
-            float dot_prod = 0;
+            T dot_prod = 0;
             for (unsigned int z = 0; z < run->k; z++) {
                 dot_prod += run->a[i * run->lda + z] *
                             run->b[z * run->ldb + j];
@@ -28,3 +28,4 @@ void naiveOMP_CPU_gemm_execute(GemmRun<T>* run) {
 }
 
 template void naiveOMP_CPU_gemm_execute<float>(GemmRun<float>*);
+template void naiveOMP_CPU_gemm_execute<double>(GemmRun<double>*);
