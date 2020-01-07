@@ -22,6 +22,9 @@ template <typename T>
 void opt3CPU_gemm_execute(GemmRun<T>* run);
 
 template <typename T>
+void opt4CPU_gemm_execute(GemmRun<T>* run);
+
+template <typename T>
 void naiveOMP_CPU_gemm_execute(GemmRun<T>* run);
 
 template <typename T>

@@ -122,6 +122,15 @@ int main(int argc, char *argv[]) {
         #endif
         gemm_execute = opt3CPU_gemm_execute<float>;
 
+    } else if (FLAGS_benchmark.compare("opt4CPU") == 0) {
+        std::cout << "Running opt4CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
+        #ifdef __AVX512F__
+        std::cout << "Not using AVX-512F" << std::endl;
+        #else
+        std::cout << "Using AVXF" << std::endl;
+        #endif
+        gemm_execute = opt4CPU_gemm_execute<float>;
+
     } else if (FLAGS_benchmark.compare("naiveOmpCPU") == 0) {
         std::cout << "Running naiveOmpCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = naiveOMP_CPU_gemm_execute<float>;
