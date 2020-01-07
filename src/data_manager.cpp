@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "data_manager.h"
 
@@ -24,14 +24,14 @@ int allocate_run(GemmRun<T>** run, unsigned int size) {
     (*run)->b = (T *) aligned_alloc( 64, (*run)->ldb * (*run)->k * sizeof(T) );
     (*run)->c = (T *) aligned_alloc( 64, (*run)->ldc * (*run)->m * sizeof(T) );
 
-    if ( (*run)->a == NULL || (*run)->b == NULL || (*run)->c == NULL ) {
-        printf("\nCan't allocate alligned memory arrays\n");
+    if ( (*run)->a == nullptr || (*run)->b == nullptr || (*run)->c == nullptr ) {
+        printf("\nCan't allocate aligned memory arrays\n");
         (*run)->a = (T *)malloc( (*run)->ldc * (*run)->m * sizeof(T) );
         (*run)->b = (T *)malloc( (*run)->ldc * (*run)->m * sizeof(T) );
         (*run)->c = (T *)malloc( (*run)->ldc * (*run)->m * sizeof(T) );
     }
 
-    if ( (*run)->a == NULL || (*run)->b == NULL || (*run)->c == NULL ) {
+    if ( (*run)->a == nullptr || (*run)->b == nullptr || (*run)->c == nullptr ) {
         printf("\nCan't allocate memory arrays\n");
         return 1;
     }
