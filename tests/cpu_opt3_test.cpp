@@ -16,7 +16,7 @@ TYPED_TEST_SUITE(MatrixTest, MyTypes);
 TYPED_TEST(MatrixTest, RandomOpt3CPU) {
     this->MySetUp(MATRIX_SIZE, RANDOM);
 
-    naiveCPU_gemm_execute(this->run_truth);
+    opt2CPU_gemm_execute(this->run_truth);
     opt3CPU_gemm_execute(this->run);
 
     this->verify_correctness(THRESHOLD);
@@ -26,7 +26,7 @@ TYPED_TEST(MatrixTest, RandomOpt3CPU) {
 TYPED_TEST(MatrixTest, FixedOpt3CPU) {
     this->MySetUp(MATRIX_SIZE, FIXED);
 
-    naiveCPU_gemm_execute(this->run_truth);
+    opt2CPU_gemm_execute(this->run_truth);
     opt3CPU_gemm_execute(this->run);
 
     this->verify_correctness(THRESHOLD);
