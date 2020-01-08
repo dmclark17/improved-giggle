@@ -14,7 +14,7 @@
 #define NC 64
 #define KC 512
 #define MR 4
-#define NR 8
+#define NR 12
 
 
 inline void opt4CPU_packA(GemmRun<float>* run, unsigned int p, float* a_pack) {
@@ -46,7 +46,11 @@ inline void opt4CPU_packB(GemmRun<float>* run, unsigned int p, unsigned int j, f
     */
     unsigned int offset = run->ldb * p + j;
     unsigned int block_index, global_index;
-    for (unsigned int pack_j = 0; pack_j < NC; pack_j += NR) {
+    unsigned int pack_j;
+
+    const unsigned int nc_clean = (NC / NR) * NR;
+
+    for ( pack_j = 0; pack_j < nc_clean; pack_j += NR) {
         for (unsigned int pack_i = 0; pack_i < KC; pack_i += 2) {
 
             for (unsigned int other_j = 0; other_j < NR; other_j += 4) {
@@ -55,6 +59,25 @@ inline void opt4CPU_packB(GemmRun<float>* run, unsigned int p, unsigned int j, f
                 for (unsigned int inner_i = 0; inner_i < 2; inner_i++) {
                     for (unsigned int inner_j = 0; inner_j < 4; inner_j++) {
                         block_index = (pack_j * KC) + (pack_i * NR) + (inner_i * 4) + other_j * 2 + inner_j;
+                        global_index = offset + (pack_i + inner_i) * run->ldb + (pack_j + other_j + inner_j);
+                        b_pack[block_index] = run->b[global_index];
+                    }
+                }
+            }
+        }
+    }
+
+    // Clean up
+    const unsigned int nr_baby = 4;
+    for ( ; pack_j < NC; pack_j += nr_baby) {
+        for (unsigned int pack_i = 0; pack_i < KC; pack_i += 2) {
+
+            for (unsigned int other_j = 0; other_j < nr_baby; other_j += 4) {
+
+                // These 8 values will be in one register
+                for (unsigned int inner_i = 0; inner_i < 2; inner_i++) {
+                    for (unsigned int inner_j = 0; inner_j < 4; inner_j++) {
+                        block_index = (pack_j * KC) + (pack_i * nr_baby) + (inner_i * 4) + other_j * 2 + inner_j;
                         global_index = offset + (pack_i + inner_i) * run->ldb + (pack_j + other_j + inner_j);
                         b_pack[block_index] = run->b[global_index];
                     }
@@ -104,50 +127,61 @@ inline void opt4CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
       - b_pack should be in column major
       - c_pack will be in row major?!
     */
-    __m256 a0, a0_p;
-    __m256 b0, b1;
-    __m256 c0, c1, c2, c3, c4, c5, c6, c7;
+    __m256 a0;
+    __m256 b0, b1, b2;
+    __m256 c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11;
     __m128 sum0, sum1, sum2, sum3, sum4, sum5, sum6, sum7;
 
 
     const __m256i perm1 = _mm256_setr_epi32(3, 0, 1, 2, 3, 0, 1, 2);
-    const __m256i perm2 = _mm256_setr_epi32(2, 3, 0, 1, 2, 3, 0, 1);
-    const __m256i perm3 = _mm256_setr_epi32(1, 2, 3, 0, 1, 2, 3, 0);
+//    const __m256i perm2 = _mm256_setr_epi32(2, 3, 0, 1, 2, 3, 0, 1);
+//    const __m256i perm3 = _mm256_setr_epi32(1, 2, 3, 0, 1, 2, 3, 0);
 
     unsigned int pack_n, pack_z;
+    const unsigned int nc_clean = (NC / NR) * NR;
 
-    for (pack_n = 0; pack_n < NC; pack_n += NR) {
+    for (pack_n = 0; pack_n < nc_clean; pack_n += NR) {
 
-        c0 =  _mm256_setzero_ps();
-        c1 =  _mm256_setzero_ps();
-        c2 =  _mm256_setzero_ps();
-        c3 =  _mm256_setzero_ps();
+        c0 = _mm256_setzero_ps();
+        c1 = _mm256_setzero_ps();
+        c2 = _mm256_setzero_ps();
+        c3 = _mm256_setzero_ps();
 
-        c4 =  _mm256_setzero_ps();
-        c5 =  _mm256_setzero_ps();
-        c6 =  _mm256_setzero_ps();
-        c7 =  _mm256_setzero_ps();
+        c4 = _mm256_setzero_ps();
+        c5 = _mm256_setzero_ps();
+        c6 = _mm256_setzero_ps();
+        c7 = _mm256_setzero_ps();
+
+        c8 = _mm256_setzero_ps();
+        c9 = _mm256_setzero_ps();
+        c10 = _mm256_setzero_ps();
+        c11 = _mm256_setzero_ps();
 
         for (pack_z = 0; pack_z < KC; pack_z += 2) {
-            a0_p = _mm256_load_ps(a_pack + (pack_z) * 4 + (0));
+            a0 = _mm256_load_ps(a_pack + (pack_z) * 4 + (0));
             b0 = _mm256_load_ps(b_pack + (pack_n * KC) + (pack_z) * NR + (0));
             b1 = _mm256_load_ps(b_pack + (pack_n * KC) + (pack_z) * NR + (8));
+            b2 = _mm256_load_ps(b_pack + (pack_n * KC) + (pack_z) * NR + (16));
 
-            c0 = _mm256_fmadd_ps(a0_p, b0, c0);
-            c4 = _mm256_fmadd_ps(a0_p, b1, c4);
+            c0 = _mm256_fmadd_ps(a0, b0, c0);
+            c4 = _mm256_fmadd_ps(a0, b1, c4);
+            c8 = _mm256_fmadd_ps(a0, b2, c8);
 
-            a0 = _mm256_permutevar_ps(a0_p, perm1);
+            a0 = _mm256_permutevar_ps(a0, perm1);
             c1 = _mm256_fmadd_ps(a0, b0, c1);
             c5 = _mm256_fmadd_ps(a0, b1, c5);
+            c9 = _mm256_fmadd_ps(a0, b2, c9);
 
-
-            a0 = _mm256_permutevar_ps(a0_p, perm2);
+            a0 = _mm256_permutevar_ps(a0, perm1);
             c2 = _mm256_fmadd_ps(a0, b0, c2);
             c6 = _mm256_fmadd_ps(a0, b1, c6);
+            c10 = _mm256_fmadd_ps(a0, b2, c10);
 
-            a0 = _mm256_permutevar_ps(a0_p, perm3);
+            a0 = _mm256_permutevar_ps(a0, perm1);
             c3 = _mm256_fmadd_ps(a0, b0, c3);
             c7 = _mm256_fmadd_ps(a0, b1, c7);
+            c11 = _mm256_fmadd_ps(a0, b2, c11);
+
         }
 
         sum0 = _mm256_extractf128_ps(c0, 1);
@@ -190,6 +224,72 @@ inline void opt4CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
         _mm_store_ps(c_pack + pack_n * MR + (5) * 4, sum1);
         _mm_store_ps(c_pack + pack_n * MR + (6) * 4, sum2);
         _mm_store_ps(c_pack + pack_n * MR + (7) * 4, sum3);
+
+        // Round three
+        sum0 = _mm256_extractf128_ps(c8, 1);
+        sum1 = _mm256_extractf128_ps(c9, 1);
+        sum2 = _mm256_extractf128_ps(c10, 1);
+        sum3 = _mm256_extractf128_ps(c11, 1);
+
+        sum4 = _mm256_extractf128_ps(c8, 0);
+        sum5 = _mm256_extractf128_ps(c9, 0);
+        sum6 = _mm256_extractf128_ps(c10, 0);
+        sum7 = _mm256_extractf128_ps(c11, 0);
+
+        sum0 = _mm_add_ps(sum0, sum4);
+        sum1 = _mm_add_ps(sum1, sum5);
+        sum2 = _mm_add_ps(sum2, sum6);
+        sum3 = _mm_add_ps(sum3, sum7);
+
+        _mm_store_ps(c_pack + pack_n * MR + (8) * 4, sum0);
+        _mm_store_ps(c_pack + pack_n * MR + (9) * 4, sum1);
+        _mm_store_ps(c_pack + pack_n * MR + (10) * 4, sum2);
+        _mm_store_ps(c_pack + pack_n * MR + (11) * 4, sum3);
+    }
+
+    const unsigned int nr_baby = 4;
+    for ( ; pack_n < NC; pack_n += nr_baby) {
+
+        c0 =  _mm256_setzero_ps();
+        c1 =  _mm256_setzero_ps();
+        c2 =  _mm256_setzero_ps();
+        c3 =  _mm256_setzero_ps();
+
+        for (pack_z = 0; pack_z < KC; pack_z += 2) {
+            a0 = _mm256_load_ps(a_pack + (pack_z) * 4 + (0));
+            b0 = _mm256_load_ps(b_pack + (pack_n * KC) + (pack_z) * nr_baby + (0));
+
+            c0 = _mm256_fmadd_ps(a0, b0, c0);
+
+            a0 = _mm256_permutevar_ps(a0, perm1);
+            c1 = _mm256_fmadd_ps(a0, b0, c1);
+
+            a0 = _mm256_permutevar_ps(a0, perm1);
+            c2 = _mm256_fmadd_ps(a0, b0, c2);
+
+            a0 = _mm256_permutevar_ps(a0, perm1);
+            c3 = _mm256_fmadd_ps(a0, b0, c3);
+        }
+
+        sum0 = _mm256_extractf128_ps(c0, 1);
+        sum1 = _mm256_extractf128_ps(c1, 1);
+        sum2 = _mm256_extractf128_ps(c2, 1);
+        sum3 = _mm256_extractf128_ps(c3, 1);
+
+        sum4 = _mm256_extractf128_ps(c0, 0);
+        sum5 = _mm256_extractf128_ps(c1, 0);
+        sum6 = _mm256_extractf128_ps(c2, 0);
+        sum7 = _mm256_extractf128_ps(c3, 0);
+
+        sum0 = _mm_add_ps(sum0, sum4);
+        sum1 = _mm_add_ps(sum1, sum5);
+        sum2 = _mm_add_ps(sum2, sum6);
+        sum3 = _mm_add_ps(sum3, sum7);
+
+        _mm_store_ps(c_pack + pack_n * MR + (0) * 4, sum0);
+        _mm_store_ps(c_pack + pack_n * MR + (1) * 4, sum1);
+        _mm_store_ps(c_pack + pack_n * MR + (2) * 4, sum2);
+        _mm_store_ps(c_pack + pack_n * MR + (3) * 4, sum3);
     }
 }
 
