@@ -13,7 +13,7 @@
 
 DEFINE_string(benchmark, "mkl", "benchmark to run");
 DEFINE_uint64(number, 1, "Amount of times to run each size");
-DEFINE_string(sizes, "3,4", "Comma seperated sizes of matrices to run");
+DEFINE_string(sizes, "3,4", "Comma separated sizes of matrices to run");
 
 int main(int argc, char *argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
     void (*gemm_execute)(GemmRun<float>*);
 
-    if (FLAGS_benchmark.compare("mkl") == 0) {
+    if (FLAGS_benchmark == "mkl") {
         #ifdef _IG_HASMKL
         std::cout << "Running MKL Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = mkl_gemm_execute<float>;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
-    } else if (FLAGS_benchmark.compare("accelerate") == 0) {
+    } else if (FLAGS_benchmark == "accelerate") {
         #ifdef __APPLE__
         std::cout << "Running naiveCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = accelerate_gemm_execute<float>;
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
-    } else if (FLAGS_benchmark.compare("cublas") == 0) {
+    } else if (FLAGS_benchmark == "cublas") {
         #ifdef _IG_HASCUDA
         std::cout << "Running cuBLAS Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = cublass_gemm_execute;
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
-    } else if (FLAGS_benchmark.compare("naiveGPU") == 0) {
+    } else if (FLAGS_benchmark == "naiveGPU") {
         #ifdef _IG_HASCUDA
         std::cout << "Running naiveGPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = naiveGPU_gemm_execute;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
-    } else if (FLAGS_benchmark.compare("opt1GPU") == 0) {
+    } else if (FLAGS_benchmark == "opt1GPU") {
         #ifdef _IG_HASCUDA
         std::cout << "Running opt1GPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = opt1GPU_gemm_execute;
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
-    } else if (FLAGS_benchmark.compare("opt2GPU") == 0) {
+    } else if (FLAGS_benchmark == "opt2GPU") {
         #ifdef _IG_HASCUDA
         std::cout << "Running opt2GPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = opt2GPU_gemm_execute;
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
-    } else if (FLAGS_benchmark.compare("opt3GPU") == 0) {
+    } else if (FLAGS_benchmark == "opt3GPU") {
         #ifdef _IG_HASCUDA
         std::cout << "Running opt3GPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = opt3GPU_gemm_execute;
@@ -96,60 +96,60 @@ int main(int argc, char *argv[]) {
         return 1;
         #endif
 
-    } else if (FLAGS_benchmark.compare("naiveCPU") == 0) {
+    } else if (FLAGS_benchmark == "naiveCPU") {
         std::cout << "Running naiveCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = naiveCPU_gemm_execute<float>;
 
-    } else if (FLAGS_benchmark.compare("opt1CPU") == 0) {
+    } else if (FLAGS_benchmark == "opt1CPU") {
         std::cout << "Running opt1CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = opt1CPU_gemm_execute<float>;
 
-    } else if (FLAGS_benchmark.compare("opt2CPU") == 0) {
+    } else if (FLAGS_benchmark == "opt2CPU") {
         std::cout << "Running opt2CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         #ifdef __AVX512F__
         std::cout << "Using AVX-512F" << std::endl;
         #else
-        std::cout << "Using AVXF" << std::endl;
+        std::cout << "Using AVX" << std::endl;
         #endif
         gemm_execute = opt2CPU_gemm_execute<float>;
 
-    } else if (FLAGS_benchmark.compare("opt3CPU") == 0) {
+    } else if (FLAGS_benchmark == "opt3CPU") {
         std::cout << "Running opt3CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         #ifdef __AVX512F__
         std::cout << "Using AVX-512F" << std::endl;
         #else
-        std::cout << "Using AVXF" << std::endl;
+        std::cout << "Using AVX" << std::endl;
         #endif
         gemm_execute = opt3CPU_gemm_execute<float>;
 
-    } else if (FLAGS_benchmark.compare("opt4CPU") == 0) {
+    } else if (FLAGS_benchmark == "opt4CPU") {
         std::cout << "Running opt4CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         #ifdef __AVX512F__
         std::cout << "Not using AVX-512F" << std::endl;
         #else
-        std::cout << "Using AVXF" << std::endl;
+        std::cout << "Using AVX" << std::endl;
         #endif
         gemm_execute = opt4CPU_gemm_execute<float>;
 
-    } else if (FLAGS_benchmark.compare("opt5CPU") == 0) {
+    } else if (FLAGS_benchmark == "opt5CPU") {
         std::cout << "Running opt5CPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         #ifdef __AVX512F__
         std::cout << "Not using AVX-512F" << std::endl;
         #else
-        std::cout << "Using AVXF" << std::endl;
+        std::cout << "Using AVX" << std::endl;
         #endif
         gemm_execute = opt5CPU_gemm_execute<float>;
 
-    } else if (FLAGS_benchmark.compare("naiveOmpCPU") == 0) {
+    } else if (FLAGS_benchmark == "naiveOmpCPU") {
         std::cout << "Running naiveOmpCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         gemm_execute = naiveOMP_CPU_gemm_execute<float>;
 
-    } else if (FLAGS_benchmark.compare("opt1OmpCPU") == 0) {
+    } else if (FLAGS_benchmark == "opt1OmpCPU") {
         std::cout << "Running opt1OmpCPU Benchmark for " << matrix_sizes.size() << " sizes" << std::endl;
         #ifdef __AVX512F__
         std::cout << "Using AVX-512F" << std::endl;
         #else
-        std::cout << "Using AVXF" << std::endl;
+        std::cout << "Using AVX" << std::endl;
         #endif
         gemm_execute = opt1OMP_CPU_gemm_execute<float>;
 

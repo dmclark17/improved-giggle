@@ -1,14 +1,8 @@
-#include <cstdio>
 #include <cstdlib>
 
 #include <immintrin.h>
 
-// #include <xmmintrin.h>
-// _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-
 #include "data_manager.h"
-
-#include "cpu_benchmark.h"
 
 
 #define NC 64
@@ -86,7 +80,7 @@ inline void opt5CPU_packB(GemmRun<float>* run, unsigned int p, unsigned int j, f
 }
 
 
-inline void opt5CPU_unpackC(GemmRun<float>* run, unsigned int j, unsigned int i, float* c_pack) {
+inline void opt5CPU_unpackC(GemmRun<float>* run, unsigned int j, unsigned int i, const float* c_pack) {
     /*
       utility function for unpacking C
       - Unpacks a m_r by n_c submatrix into C

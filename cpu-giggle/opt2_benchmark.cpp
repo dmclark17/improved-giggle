@@ -1,11 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <immintrin.h>
 
 #include "data_manager.h"
-
-#include "cpu_benchmark.h"
 
 
 #define NC 64

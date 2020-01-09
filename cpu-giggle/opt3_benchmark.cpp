@@ -1,12 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <immintrin.h>
 
-
 #include "data_manager.h"
-
-#include "cpu_benchmark.h"
 
 
 #define NC 64
@@ -144,7 +140,6 @@ inline void opt3CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
     __m256 b0, b1;
     __m256 c0, c1, c2, c3, c4, c5;
     unsigned int pack_n, pack_i, pack_j, pack_z;
-    pack_j = 0;
 
     const unsigned int mr_3 = (MR / 3) * 3;
     for (pack_n = 0; pack_n < NC; pack_n += NR) {

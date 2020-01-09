@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
 
 #ifdef MKL_ILP64
 #include "mkl.h"
@@ -7,7 +6,6 @@
 
 #include "data_manager.h"
 
-#include "cpu_benchmark.h"
 
 template <typename T>
 void mkl_gemm_execute(GemmRun<T>* run) {

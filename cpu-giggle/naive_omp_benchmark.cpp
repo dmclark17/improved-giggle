@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <omp.h>
-
 #include "data_manager.h"
-
-#include "cpu_benchmark.h"
 
 #define NUM_THREADS 2
 
