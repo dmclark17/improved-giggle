@@ -8,16 +8,10 @@
 #include "cpu_benchmark.h"
 
 
-#define NC 128
-#define KC 128
-#define MR 32
+#define NC 64
+#define KC 1024
+#define MR 64
 #define NR 1
-
-
-// #define NC 1024
-// #define KC 1024
-// #define MR 64
-// #define NR 1
 
 
 template <typename T>

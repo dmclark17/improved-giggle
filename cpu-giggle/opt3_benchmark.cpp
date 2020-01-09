@@ -3,23 +3,16 @@
 
 #include <immintrin.h>
 
+
 #include "data_manager.h"
 
 #include "cpu_benchmark.h"
 
 
 #define NC 64
-#define KC 1024
+#define KC 512
 #define MR 16
 #define NR 16
-
-inline void opt3CPU_packA(GemmRun<float>* run, unsigned int p, float* a_pack);
-inline void opt3CPU_packB(GemmRun<float>* run, unsigned int p, int j, float* b_pack);
-inline void opt3CPU_unpackC(GemmRun<float>* run, unsigned int j, unsigned int i, float* c_pack);
-inline void opt3CPU_aux(float* a_pack, float* b_pack, float* c_pack);
-inline void opt3CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack);
-inline void opt3CPU_gepb(GemmRun<float>* run, unsigned int p, unsigned int j, float* a_pack, float* b_pack, float* c_pack);
-inline void opt3CPU_gepp(GemmRun<float>* run, unsigned int p, float* a_pack, float* b_pack, float* c_pack);
 
 
 inline void opt3CPU_packA(GemmRun<float>* run, unsigned int p, float* a_pack) {
@@ -147,13 +140,13 @@ inline void opt3CPU_aux_simd(float* a_pack, float* b_pack, float* c_pack) {
     }
     #else
     #ifdef __AVX__
-    __m256 a0, a1, a2, a3;
+    __m256 a0, a1, a2;
     __m256 b0, b1;
     __m256 c0, c1, c2, c3, c4, c5;
     unsigned int pack_n, pack_i, pack_j, pack_z;
     pack_j = 0;
 
-    unsigned int mr_3 = (MR / 3) * 3;
+    const unsigned int mr_3 = (MR / 3) * 3;
     for (pack_n = 0; pack_n < NC; pack_n += NR) {
         for (pack_j = 0; pack_j < NR; pack_j += 8 * 2) {
             for (pack_i = 0; pack_i < mr_3; pack_i += 3) {

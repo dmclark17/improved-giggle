@@ -34,7 +34,7 @@ void opt1OMP_CPU_gemm_execute(GemmRun<T>* run) {
         subrun.b = run->b + (x * subrun.n);
         subrun.c = run->c + (x * subrun.n) + (y * subrun.m * subrun.ldc);
 
-        opt3CPU_gemm_execute(&subrun);
+        opt5CPU_gemm_execute(&subrun);
     }
 }
 
