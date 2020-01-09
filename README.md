@@ -1,36 +1,38 @@
 # improved-giggle
-Linear algebra benchmarking and implementations
+Some matrix multiplication implementations and benchmarking for CPUs and GPUs
 
 ## Usage
 
 Make sure the `IMPROVED_GIGGLE_ROOT` environment variable is set to the root of the project
 
 
-macOS llvm for openMP:
-
-`cmake -DCMAKE_C_COMPILER="/usr/local/opt/llvm/bin/clang" -DCMAKE_CXX_COMPILER="/usr/local/opt/llvm/bin/clang++" ..`
-
-`set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")`
-
-`sudo sh -c 'echo -1 >/proc/sys/kernel/perf_event_paranoid'`
-
-`toplev.py -d -l3 ../improved-giggle/build/apps/benchmark --sizes 1024 --benchmark opt1CPU`
-
 ```
-./apps/benchmark --benchmark {mlk,cublas} --number 1 --sizes 512,1024
+mkdir build && cd build
+cmake ..
+./apps/benchmark --benchmark {mlk,cublas,..} --number 1 --sizes 512,1024
 ```
 
 
-### Cannon Setup
+I used llvm for openMP support on macOS:
 
 ```
-srun --pty -p fas_gpu -t 0-06:00 --mem 8000 --gres=gpu:1 /bin/bash
+cmake -DCMAKE_C_COMPILER="/usr/local/opt/llvm/bin/clang" -DCMAKE_CXX_COMPILER="/usr/local/opt/llvm/bin/clang++" ..
+```
 
+### Cluster Setup
+
+CPU
+
+```
 module load cmake/3.12.1-fasrc01
 module load gflags/2.1.2-fasrc01
 module load intel/19.0.5-fasrc01
 module load intel-mkl/2019.5.281-fasrc01
+```
 
+GPU
+
+```
 module load cmake/3.12.1-fasrc01
 module load gflags/2.1.2-fasrc01
 module load intel/19.0.5-fasrc01
@@ -39,70 +41,49 @@ module load cuda/10.1.243-fasrc01
 
 ## CPU implementations
 
-### Naive
+cmake will attempt to find an MKL installation (`mkl`) and, if being compiled on macOS, will compile with the accelerate framework (`accelerate`) as a benchmark.
 
-```
-BE             Backend_Bound                          % Slots                  89.48
-BE/Mem         Backend_Bound.Memory_Bound             % Slots                  77.10
-BE/Core        Backend_Bound.Core_Bound               % Slots                  12.39
-	This metric represents fraction of slots where Core non-
-	memory issues were of a bottleneck...
-BE/Mem         Backend_Bound.Memory_Bound.DRAM_Bound  % Stalls                 72.58  <==
-	This metric estimates how often the CPU was stalled on
-	accesses to external memory (DRAM) by loads...
-	Sampling events:  mem_load_retired.l3_miss:pp
-MUX                                                   %                         5.26
-	PerfMon Event Multiplexing accuracy indicator
-```
+### Optimization One: `opt1CPU`
+
+Implements the high level matrix decompositions described in [Anatomy of High-Performance Matrix Multiplication](https://www.cs.utexas.edu/~flame/pubs/GotoTOMS_revision.pdf). 
+
+### Optimization Two: `opt2CPU`
+
+Relatively naive vectorization of previous version using explicit SIMD intrinsic functions.
 
 
-### Opt1
+### Optimization Three: `opt3CPU`
 
-```
-RET            Retiring             % Slots                  96.67
-RET            Retiring.Base        % Slots                  96.63
-RET            Retiring.Base.Other  % Uops                   95.81  <==
-	This metric represents non-floating-point (FP) uop fraction
-	the CPU has executed...
-MUX                                 %                         5.25
-	PerfMon Event Multiplexing accuracy indicator
-```
-
-### Opt2
-
-```
-BE             Backend_Bound                               % Slots                  31.96
-BE/Core        Backend_Bound.Core_Bound                    % Slots                  27.38
-BE/Core        Backend_Bound.Core_Bound.Ports_Utilization  % Clocks                 28.12  <==
-	This metric estimates fraction of cycles the CPU performance
-	was potentially limited due to Core computation issues (non
-	divider-related)...
-MUX                                                        %                         5.19
-	PerfMon Event Multiplexing accuracy indicator
-warning: 6 results not referenced: 62 65 66 82 83 84
-```
-
-### Opt3
-
-```
-BE             Backend_Bound                               % Slots                  28.59
-BE/Core        Backend_Bound.Core_Bound                    % Slots                  19.97
-BE/Core        Backend_Bound.Core_Bound.Ports_Utilization  % Clocks                 31.61  <==
-	This metric estimates fraction of cycles the CPU performance
-	was potentially limited due to Core computation issues (non
-	divider-related)...
-MUX                                                        %                         5.15
-	PerfMon Event Multiplexing accuracy indicator
-
-```
+Further optimizes the inner kernel - adds a register blocking scheme to increase ratio of fp ops to loads. Still uses broadcasting in the vectorization.
 
 
-### mkl
+### Optimization Four: `opt4CPU`
 
-```
-RET            Retiring                % Slots                  77.71
-RET            Retiring.Base           % Slots                  76.87
-RET            Retiring.Base.FP_Arith  % Uops                   81.34  <==
-	This metric represents overall arithmetic floating-point
-	(FP) uops fraction the CPU has executed (retired)
-```
+Stole some ideas from the Accelerate Framework `gemm` implementation after looking at its assembly. This replaced the broadcasting scheme with a permutation scheme. Ideally, the permutation scheme uses all 16 SIMD registers without spilling into the stack to minimize the number of loads/stores. However, I found that the compiler performed optimizations which increased the number of registers required beyond 16 and therefore decreased performance. The previous optimization uses 11 registers; this left room for the compiler use more registers without spilling into the stack.
+
+
+### Optimization Five: `opt5CPU`
+
+Being unable to convince the compiler to only use the 16 registers, I used inline assembly to implement the innermost kernel. I started with the assembly the compiler generated on `O1` (I think) and with loop unrolling disabled for the inner most loop. I changed the code to not use the extra registers and did some manual loop unrolling. This assembly is not optimally written with respect to the indexing and code alignment, but it seems to perform well.
+
+### Optimization Six: `opt1OmpCPU`
+
+The matrix multiplication was parallelized with openMP. To avoid race conditions, the parallelization happened at the highest level of the matrix decomposition, breaking the multiplication into a number of non-overlapping panel-panel multiplications.
+
+## GPU Implementations
+
+cmake will only build the GPU implementations if a CUDA compiler is detected. If this is the case, it will also enable `cublas` as an option.
+
+### Optimization One: `opt1GPU`
+
+The first two versions are from the CUDA developer documentation section on shared memory - with the naive version not using shared memory and the first optimization loading blocks of the matrix into shared memory. 
+
+
+### Optimization Two: `opt2GPU`
+
+The second optimization changes the blocking scheme to be close to the scheme in [Benchmarking GPUs to Tune Dense Linear Algebra](https://mc.stanford.edu/cgi-bin/images/6/65/SC08_Volkov_GPU.pdf). This increases the register utilization and reduces the shared memory footprint. 
+
+
+### Optimization Three: `opt3GPU`
+
+The third optimization mostly builds off `opt1GPU` - adding a register blocking scheme that maintains coalesced memory access. 
