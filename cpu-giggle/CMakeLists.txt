@@ -1,6 +1,7 @@
 add_library(cpu-benchmark-lib STATIC
     mkl_benchmark.cpp
     accelerate_benchmark.cpp
+    opt5_benchmark.cpp
     opt4_benchmark.cpp
     opt3_benchmark.cpp
     opt2_benchmark.cpp
@@ -14,9 +15,9 @@ add_library(cpu-benchmark-lib STATIC
 set(CPU_BENCHMARK_INCLUDE_DIR "${IGIGGLE_SOURCE_DIR}/cpu-giggle" PARENT_SCOPE)
 
 if(MKL_FOUND)
-  target_link_libraries(cpu-benchmark-lib ${MKL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-  include_directories(${MKL_INCLUDE_DIRS})
-  set(IG_MKL_FOUND "true" PARENT_SCOPE)
+    target_link_libraries(cpu-benchmark-lib ${MKL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+    include_directories(${MKL_INCLUDE_DIRS})
+    set(IG_MKL_FOUND "true" PARENT_SCOPE)
 endif()
 target_link_libraries(cpu-benchmark-lib ${BLAS_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
