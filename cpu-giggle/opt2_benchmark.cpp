@@ -51,7 +51,7 @@ inline void opt2CPU_packA(GemmRun<double>* run, unsigned int p, double* a_pack) 
     * doubles
     */
     #ifdef __AVX__
-    __m256 src;
+    __m256d src;
     for (unsigned int i = 0; i < run->m; i++) {
         for (unsigned int j = 0; j < KC; j += 4) {
             src = _mm256_load_pd(run->a + (p + run->lda * i + j));
@@ -107,7 +107,7 @@ inline void opt2CPU_packB(GemmRun<double>* run, unsigned int p, unsigned int j, 
     */
     unsigned int offset = run->ldb * p + j;
     #ifdef __AVX__
-    __m256 src;
+    __m256d src;
     for (unsigned int pack_i = 0; pack_i < KC; pack_i++) {
         for (unsigned int pack_j = 0; pack_j < NC; pack_j += 4) {
             src = _mm256_load_pd(run->b + offset + pack_i * run->ldb + pack_j);
@@ -172,7 +172,7 @@ inline void opt2CPU_unpackC(GemmRun<double>* run, unsigned int j, unsigned int i
     */
     unsigned int offset = i * run->ldc + j;
     #ifdef __AVX__
-    __m256 m_cpack, m_c, m_sum, zero_vec;
+    __m256d m_cpack, m_c, m_sum, zero_vec;
     zero_vec = _mm256_setzero_pd();
     for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
         for (unsigned int pack_j = 0; pack_j < NC; pack_j += 4) {
@@ -242,7 +242,7 @@ inline void opt2CPU_aux_simd(double* a_pack, double* b_pack, double* c_pack) {
     * double
     */
     #ifdef __AVX__
-    __m256 a, b, c;
+    __m256d a, b, c;
     for (unsigned int pack_z = 0; pack_z < KC; pack_z++) {
         for (unsigned int pack_i = 0; pack_i < MR; pack_i++) {
             // Load a and scatter
@@ -338,8 +338,8 @@ void opt2CPU_gemm_execute(GemmRun<double>* run) {
     double* c_pack = (double *)aligned_alloc( 64, MR * NC * sizeof(double) );
 
     #ifdef __AVX__
-    __m256 zero_vec = _mm256_setzero_pd();
-    for (unsigned int i = 0; i < MR * NC; i += 8) {
+    __m256d zero_vec = _mm256_setzero_pd();
+    for (unsigned int i = 0; i < MR * NC; i += 4) {
         _mm256_store_pd(c_pack + i, zero_vec);
     }
     #endif
