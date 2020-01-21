@@ -8,7 +8,7 @@
 
 #include "gpu_benchmark.h"
 
-void cublass_gemm_execute(GemmRun* run) {
+void cublass_gemm_execute(GemmRun<float>* run) {
 
     cublasOperation_t transa, transb;
 

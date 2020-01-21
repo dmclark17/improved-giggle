@@ -6,7 +6,7 @@
 #define IDX2C(i,j,ld) (((j)*(ld))+(i))
 
 TEST(CUBLASTests, ThreeByThree) {
-    GemmRun* run;
+    GemmRun<float>* run;
     allocate_run(&run, 3);
 
     float* expected = (float *)calloc(run->ldc * run->m, sizeof(float) );

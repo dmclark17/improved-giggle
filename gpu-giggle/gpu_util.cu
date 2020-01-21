@@ -6,7 +6,7 @@
 
 #include "gpu_util.h"
 
-void init_cuda_matrices(GemmRun* run,
+void init_cuda_matrices(GemmRun<float>* run,
                         size_t* pitch_A, size_t* pitch_B, size_t* pitch_C,
                         float** cuda_A, float** cuda_B, float** cuda_C) {
 
@@ -36,7 +36,7 @@ void init_cuda_matrices(GemmRun* run,
 }
 
 
-void deinit_cuda_matrices(GemmRun* run, size_t pitch_C,
+void deinit_cuda_matrices(GemmRun<float>* run, size_t pitch_C,
                           float* cuda_A, float* cuda_B, float* cuda_C) {
 
     cublasStatus_t stat;

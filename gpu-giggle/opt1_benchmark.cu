@@ -13,7 +13,7 @@ void opt1MulKernel(size_t pitch_A, size_t pitch_B, size_t pitch_C,
                   float* cuda_A, float* cuda_B, float* cuda_C,
                   int k);
 
-void opt1GPU_gemm_execute(GemmRun* run) {
+void opt1GPU_gemm_execute(GemmRun<float>* run) {
     size_t pitch_A, pitch_B, pitch_C, cuda_lda, cuda_ldb, cuda_ldc;
     float* cuda_A;
     float* cuda_B;

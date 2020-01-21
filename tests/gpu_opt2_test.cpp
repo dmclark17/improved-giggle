@@ -8,8 +8,8 @@
 #define IDX2C(i,j,ld) (((j)*(ld))+(i))
 
 TEST(Opt2GPUTests, BigTest) {
-    GemmRun* run;
-    GemmRun* run_mkl;
+    GemmRun<float>* run;
+    GemmRun<float>* run_mkl;
     allocate_run(&run, 1024);
     allocate_run(&run_mkl, 1024);
 
@@ -18,7 +18,7 @@ TEST(Opt2GPUTests, BigTest) {
 
     generate_matrix_prod(run->a, run->lda, run->m);
     generate_matrix_diff(run->b, run->ldb, run->k);
-    
+
     // to free laters
     float* temp_a = run_mkl->a;
     float* temp_b = run_mkl->b;

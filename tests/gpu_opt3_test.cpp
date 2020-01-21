@@ -8,8 +8,8 @@
 #define IDX2C(i,j,ld) (((j)*(ld))+(i))
 
 TEST(Opt3GPUTests, BigTest) {
-    GemmRun* run;
-    GemmRun* run_mkl;
+    GemmRun<float>* run;
+    GemmRun<float>* run_mkl;
     allocate_run(&run, 1024);
     allocate_run(&run_mkl, 1024);
 
